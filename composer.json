@@ -1,0 +1,6 @@
+
+{
+    "require": {
+        "ar-php/ar-php": "^6.0"
+    }
+}

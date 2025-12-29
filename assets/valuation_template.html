@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Valuation Report</title>
+<style>
+  /* ---- PAGE SETUP ---- */
+  @page { size: A4; margin: 0; }
+
+  :root{
+    --top-gap:   4cm;   /* fixed 4.5cm header space for pre-printed letterhead */
+    --footer-h:  1.5cm;   /* ISO image height */
+    --footer-gap: 4cm;   /* footer space from bottom */
+    --footer-logo-bottom: 1.3cm; /* logo bottom offset from page bottom */
+  }
+
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: Calibri, sans-serif;
+    font-size: 10pt;
+    color: #000;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background: #fff;
+  }
+
+  /* one-page container with reserved header + footer space */
+  .page {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: var(--top-gap) 6pt var(--footer-gap) 6pt;
+    box-sizing: border-box;
+    min-height: calc(297mm - var(--top-gap) - var(--footer-gap));
+    overflow: visible;
+    page-break-inside: avoid;
+  }
+  .sign-block { margin-top: auto; }
+
+  /* footer image pinned 1.3cm above absolute bottom */
+  .letterhead-footer {
+    position: fixed;
+    left: 0; right: 0; 
+    bottom: var(--footer-logo-bottom);
+    height: var(--footer-h);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+  }
+  .letterhead-footer img { height: var(--footer-h); width: 4cm; }
+
+  /* shared 3-column grid so values align across tables */
+  table.data { width:100%; border-collapse:collapse; table-layout:fixed; margin:0 0 2pt 0; }
+  table.data col.col-label { width:300px; }  /* key */
+  table.data col.col-colon { width:15px; }   /* : */
+  table.data col.col-value { width:auto; }   /* value */
+  table.data td { padding:1pt 4pt; vertical-align:top; word-wrap:break-word; overflow-wrap:anywhere; }
+
+  /* blue chips */
+  .section-tag {
+    background:#003366; color:#fff; font-weight:bold;
+    padding:2pt 6pt; display:inline-block; white-space:nowrap;
+    font-family: Calibri, sans-serif;
+    font-size: 10pt;
+  }
+  .valuation-box {
+  border: 1px solid #000;   /* black border */
+  padding: 0pt 6pt;
+  margin: 2pt 0;
+}
+
+
+  /* amount chips */
+  .amount-box {
+    background:#003366; color:#fff; font-weight:bold;
+    padding:2pt 5pt; 
+    display:inline-block; margin:1pt 4pt 1pt 0;
+    font-family: Calibri, sans-serif;
+    font-size: 10pt;
+  }
+
+  p { margin: 2pt 0; font-family: Calibri, sans-serif; }
+
+  @media print {
+    .page {
+      padding: var(--top-gap) 6pt var(--footer-gap) 6pt; /* SAME as screen */
+      min-height: calc(297mm - var(--top-gap) - var(--footer-gap));
+      height: calc(297mm - var(--top-gap) - var(--footer-gap));
+      page-break-inside: avoid;
+    }
+    table { margin-bottom: 1pt; }
+    table.data td, td { padding: 0.8pt 3pt; }
+  }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+  <div class="page">
+
+    <div class="content">
+    <!-- Ref / suffix / date -->
+    <table class="data">
+      <colgroup><col class="col-label"><col class="col-colon"><col class="col-value"></colgroup>
+      <tr>
+  <td style="text-align:left; font-weight:bold; color:#c00; font-size:10pt;">REF: {{ref_prefix}}</td>
+        <td></td>
+  <td style="text-align:right; font-weight:bold; color:#c00; font-size:10pt;">Date: {{valuation_date}}</td>
+      </tr>
+    </table>
+
+    <!-- Request block -->
+    <table class="data">
+      <colgroup><col class="col-label"><col class="col-colon"><col class="col-value"></colgroup>
+      <tr><td class="label">WE THE UNDERSIGNED AT THE REQUEST</td><td class="colon">:</td><td>{{requestor_name}} / {{requestor_contact}}</td></tr>
+      <tr><td class="label">TO CARRY OUT THE VALUATION OF</td><td class="colon">:</td><td>{{car_company}}</td></tr>
+      <tr><td class="label">TO AVAIL FINANCE FROM</td><td class="colon">:</td><td>{{bank_name}}</td></tr>
+    </table>
+
+    <!-- We now report the follows -->
+    <table class="data">
+      <colgroup><col class="col-label"><col class="col-colon"><col class="col-value"></colgroup>
+      <tr>
+        <td><span class="section-tag">We now report the follows:</span></td>
+        <td></td><td></td>
+      </tr>
+      <tr><td class="label">Name of the Applicant (Buyer)</td><td class="colon">:</td><td>{{requestor_name}}</td></tr>
+      <tr><td class="label">Seller</td><td class="colon">:</td><td>{{seller}}</td></tr>
+      <tr><td class="label">Place of Asset</td><td class="colon">:</td><td>{{place_of_asset}}</td></tr>
+    </table>
+
+    <!-- DETAILS OF VEHICLE (chip on the right) -->
+    <table class="data">
+      <colgroup><col class="col-label"><col class="col-colon"><col class="col-value"></colgroup>
+      <tr><td></td><td></td><td><span class="section-tag">DETAILS OF VEHICLE</span></td></tr>
+      <tr><td class="label">Make</td><td class="colon">:</td><td>{{car_company}}</td></tr>
+      <tr><td class="label">Type</td><td class="colon">:</td><td>{{vehicle_type}}</td></tr>
+      <tr><td class="label">Model</td><td class="colon">:</td><td>{{car_model}}</td></tr>
+      <tr><td class="label">Registration Number</td><td class="colon">:</td><td><span style="display: inline-block; min-width: 200px;">{{registration_number}}</span> / {{vehicle_color}}</td></tr>
+      <tr><td class="label">Year of Manufacture</td><td class="colon">:</td><td>{{year_of_manufacture}}</td></tr>
+      <tr><td class="label">Date of Registration</td><td class="colon">:</td><td>{{date_of_registration}}</td></tr>
+      <tr><td class="label">Chassis Number</td><td class="colon">:</td><td>{{chassis_number}}</td></tr>
+      <tr><td class="label">Engine Number</td><td class="colon">:</td><td>{{engine_number}}</td></tr>
+      <tr><td class="label">Odometer Reading</td><td class="colon">:</td><td>{{odometer_reading}}</td></tr>
+      <tr><td class="label">Transmission type</td><td class="colon">:</td><td>{{transmission_type}}</td></tr>
+      <tr><td class="label">Features</td><td class="colon">:</td><td>{{features}}</td></tr>
+      <tr><td class="label">Special Observation</td><td class="colon">:</td><td>{{special_note}}</td></tr>
+    </table>
+
+    <!-- OBSERVATION (chip on the right) -->
+    <table class="data" style="margin-bottom: 4pt;">
+      <colgroup><col class="col-label"><col class="col-colon"><col class="col-value"></colgroup>
+      <tr><td></td><td></td><td><span class="section-tag">OBSERVATION</span></td></tr>
+      <tr><td class="label">Engine &amp; Transmission</td><td class="colon">:</td><td>{{engine_transmission}}</td></tr>
+      <tr><td class="label">Body &amp; Paint</td><td class="colon">:</td><td>{{body_paint}}</td></tr>
+      <tr><td class="label">Tyres</td><td class="colon">:</td><td>{{tyres}}</td></tr>
+    </table>
+
+    <div class="valuation-box" style="margin-top: 3pt;">
+  <p>{{valuation_statement_html}}</p>
+  <div>
+    <span class="amount-box">RO: {{valuation_amount}}</span>
+    <span class="amount-box">Rials Omani {{valuation_amount_words}}</span>
+  </div>
+    </div>
+
+    <div class="valuation-box" style="margin-top: 3pt;">
+  <div>
+    <span class="amount-box">Forced Market Value RO: {{forced_value}}</span>
+    <span class="amount-box">Rials Omani {{forced_value_words}}</span>
+  </div>
+    </div>
+
+    <p style="margin-top: 3pt;">
+      This report is true to the best of our knowledge and is issued without prejudice subject to the valuation as per condition of the vehicle at the date, place and time of our inspection.
+    </p>
+    </div>
+
+    <div class="sign-block">
+      <div><strong>For GULF ADJUSTERS, SURVEYORS &amp; SERVICES LLC</strong></div>
+      <div style="font-size: 8pt;">{{complete_ref_number}}</div>
+      <div style="margin-top:1cm; font-weight:bold">Authorized Signatory</div>
+        <ol style="margin:1pt 0 0 14pt; padding:0; font-size:8pt;font-weight:bold">
+            <li>Refer basis of valuation, specifications assumption, saving clauses forming part of this valuation refer overleaf</li>
+            <li>Forced market value to be considered atleast 80% of assessed market value, if not indicated above.</li>
+            <li>Relevant documents attached</li>
+        </ol>
+        
+      </div>
+
+    <!-- Footer ISO image (has guaranteed gap above it) -->
+    <div class="letterhead-footer">
+      <img src="./images/isi_logo.jpg" alt="ISO Certification">
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

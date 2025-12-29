@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Valuation Report</title>
+    <style>
+        @page { margin:18pt; }
+        body {
+            font-size:10pt;
+            font-family:'NotoNaskhArabic','DejaVu Sans',Arial,sans-serif;
+            margin:0;
+            color:#000;
+            background:#fff;
+        }
+
+        /* Arabic font embedding */
+        @font-face {
+            font-family: 'NotoNaskhArabic';
+            src: url('fonts/Noto_Naskh_Arabic/static/NotoNaskhArabic-Regular.ttf') format('truetype');
+            font-weight: normal;
+        }
+        @font-face {
+            font-family: 'NotoNaskhArabic';
+            src: url('fonts/Noto_Naskh_Arabic/static/NotoNaskhArabic-Bold.ttf') format('truetype');
+            font-weight: bold;
+        }
+        .ar {
+            font-family:'NotoNaskhArabic',sans-serif;
+            direction:rtl;
+            unicode-bidi:embed;
+        }
+
+        .section-title {
+            font-size:12pt;
+            background:#003366;
+            color:#fff;
+            font-weight:bold;
+            padding:3pt 6pt;
+            margin:8pt 0 4pt 0;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        table {
+            width:100%;
+            border-collapse:collapse;
+            margin-bottom:4pt;
+            font-size:10pt;
+        }
+        td,th {
+            border:none;         /* <<< hide all borders */
+            padding:3pt 4pt;
+            vertical-align:top;
+        }
+        td.label {
+            width:240px;
+            font-weight:bold;
+        }
+
+        .footer {
+            border-top:1pt solid #003366;
+            margin-top:6pt;
+            padding-top:4pt;
+            font-size:8pt;
+        }
+
+        .valuation-amount-box {
+            background:#003366;
+            color:#fff;
+            font-weight:bold;
+            padding:2pt 6pt;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<table>
+    <tr>
+        <td style="width:150px; vertical-align:top;">
+            <img src="./images/company_logo.png" alt="Company Logo" style="width:140px;">
+        </td>
+        <td style="text-align:center; vertical-align:top;">
+            <div class="ar" style="font-size:15pt; font-weight:bold; color:#223366;">
+                الخليج للمعاينة وتسوية الخسائر والخدمات ش م م
+            </div>
+            <div style="font-size:13pt; font-weight:bold; color:#223366;">
+                Gulf Adjusters, Surveyors & Services LLC.
+            </div>
+            <div style="font-size:11pt; font-weight:bold; color:#223366;">
+                Valuers & Surveyors
+            </div>
+        </td>
+        <td style="width:170px; text-align:right; vertical-align:top; font-size:8pt; color:#223366;">
+            <div style="font-weight:bold;">C.R. No.: 1757962</div>
+            <div style="font-weight:bold;">VATIN: OM1100245885</div>
+        </td>
+    </tr>
+</table>
+
+<hr style="border:0; border-top:2pt solid #3db6e3; margin:3pt 0;">
+
+<!-- Ref and Date -->
+<table>
+    <tr>
+        <td style="width:40%; text-align:left; color:#c00; font-weight:bold;">Ref: {{ref_number}}</td>
+        <td style="width:20%; text-align:center; color:#c00; font-weight:bold; font-size:14pt;">{{ref_suffix}}</td>
+        <td style="width:40%; text-align:right; color:#c00; font-weight:bold;">Date: {{valuation_date}}</td>
+    </tr>
+</table>
+
+<!-- Request details -->
+<table>
+    <tr><td class="label">We the undersigned at request</td><td>:</td><td>{{requestor_name}} / {{requestor_contact}}</td></tr>
+    <tr><td class="label">To carry out the valuation of</td><td>:</td><td>{{car_company}}</td></tr>
+    <tr><td class="label">To avail finance from</td><td>:</td><td>{{bank_name}}</td></tr>
+</table>
+
+<div class="section-title">We now report the follows:</div>
+
+<table>
+    <tr><td class="label">Name of the applicant (Buyer)</td><td>:</td><td>{{requestor_name}}</td></tr>
+    <tr><td class="label">Name of Seller</td><td>:</td><td>{{seller}}</td></tr>
+    <tr><td class="label">Place of Asset</td><td>:</td><td>{{place_of_asset}}</td></tr>
+</table>
+
+<div class="section-title">DETAILS OF VEHICLE</div>
+<table>
+    <tr><td class="label">Make</td><td>:</td><td>{{car_company}}</td></tr>
+    <tr><td class="label">Type</td><td>:</td><td>{{vehicle_type}}</td></tr>
+    <tr><td class="label">Model</td><td>:</td><td>{{car_model}}</td></tr>
+    <tr><td class="label">Registration Number</td><td>:</td><td>{{registration_number}}</td></tr>
+    <tr><td class="label">Year of Manufacture</td><td>:</td><td>{{year_of_manufacture}}</td></tr>
+    <tr><td class="label">Date of Registration</td><td>:</td><td>{{date_of_registration}}</td></tr>
+    <tr><td class="label">Chassis Number</td><td>:</td><td>{{chassis_number}}</td></tr>
+    <tr><td class="label">Engine Number</td><td>:</td><td>{{engine_number}}</td></tr>
+    <tr><td class="label">Odometer Reading</td><td>:</td><td>{{odometer_reading}}</td></tr>
+    <tr><td class="label">Transmission type</td><td>:</td><td>{{transmission_type}}</td></tr>
+    <tr><td class="label">Features</td><td>:</td><td>{{features}}</td></tr>
+    <tr><td class="label">Special Observation</td><td>:</td><td>{{special_note}}</td></tr>
+</table>
+
+<div class="section-title">OBSERVATION</div>
+<table>
+    <tr><td class="label">Engine & Transmission</td><td>:</td><td>{{engine_transmission}}</td></tr>
+    <tr><td class="label">Body & Paint</td><td>:</td><td>{{body_paint}}</td></tr>
+    <tr><td class="label">Tyres</td><td>:</td><td>{{tyres}}</td></tr>
+</table>
+
+<hr style="border:0; border-top:1pt solid #000; margin:3pt 0;">
+
+<p>{{valuation_statement_html}}</p>
+
+<p>
+    <span class="valuation-amount-box">RO : {{valuation_amount}}</span>
+    <span class="valuation-amount-box">Rial Omani: {{valuation_amount_words}}</span>
+</p>
+
+<hr style="border:0; border-top:1pt solid #000; margin:3pt 0;">
+
+<p>This report is true to the best of knowledge and is issued without prejudice subject to the valuation as per condition of the vehicle at the date, place and time of our inspection</p>
+
+<div style="margin-top:6pt;">
+    <div style="font-size:10pt; font-weight:bold;">Gulf Adjusters, Surveyors & Services LLC</div>
+    <div style="font-size:10pt;">{{ref_number}}</div>
+    <div style="font-size:10pt; font-weight:bold; margin-top:4pt;">Authorised Signatory</div>
+    <div style="font-size:9pt; margin-top:3pt;">
+        Note:
+        <ol style="margin:2pt 0 0 14pt; padding:0; font-size:9pt;">
+            <li>Refer basis of valuation, specifications assumption, saving clauses forming part of this valuation refer overleaf</li>
+            <li>Forced market value to be considered atleast 80% of assessed market value, if not indicated above.</li>
+            <li>Relevant documents attached</li>
+        </ol>
+    </div>
+</div>
+
+<hr style="border:0; border-top:2pt solid #3db6e3; margin:6pt 0 3pt 0;">
+
+<table style="font-size:8pt; color:#223366;">
+    <tr>
+        <td style="width:35%; text-align:left; vertical-align:top;">
+            <div>P.O. Box: 2128 Ruwi,</div>
+            <div>Postal Code:112, Sultanate of Oman</div>
+            <div>Tel.: +968 24561510, Fax: +968 24560110</div>
+        </td>
+        <td style="width:30%; text-align:center; vertical-align:top;">
+            <img src="./images/isi_logo.jpg" alt="ISI Logo" style="width:90px; margin-bottom:3pt;">
+            <div>Email: gulfadjustersurvey@gmail.com</div>
+        </td>
+        <td style="width:35%; text-align:right; vertical-align:top;" class="ar">
+            <div>ص.ب: ٢١٢٨ روي</div>
+            <div>الرمز البريدي: ١١٢، سلطنة عمان</div>
+            <div>تليفون: +٩٦٨ ٢٤٥٦١٥١٠، فاكس: +٩٦٨ ٢٤٥٦٠١١٠</div>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

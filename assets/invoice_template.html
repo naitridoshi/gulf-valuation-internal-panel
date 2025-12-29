@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Tax Invoice</title>
+<style>
+  /* ---- PAGE SETUP ---- */
+  @page { size: A4; margin: 20mm; }
+
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    font-size: 11pt;
+    color: #000;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background: #fff;
+  }
+
+  .page {
+    position: relative;
+    padding: 20pt;
+    box-sizing: border-box;
+  }
+
+  .header-title {
+    text-align: center;
+    font-weight: bold;
+    font-size: 14pt;
+    margin-bottom: 20pt;
+  }
+
+  .vat-number {
+    text-align: right;
+    font-size: 10pt;
+    margin-bottom: 5pt;
+  }
+
+  .tax-invoice-title {
+    text-align: center;
+    font-weight: bold;
+    font-size: 12pt;
+    margin-bottom: 20pt;
+  }
+
+  .customer-section {
+    margin-bottom: 15pt;
+  }
+
+  .customer-label {
+    font-weight: bold;
+    margin-bottom: 5pt;
+  }
+
+  .customer-info {
+    margin-bottom: 3pt;
+  }
+
+  .ref-date-section {
+    text-align: right;
+    position: absolute;
+    right: 20pt;
+    top: 95pt;
+  }
+
+  .ref-date-section div {
+    margin-bottom: 5pt;
+  }
+
+  .description-header {
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
+    padding: 5pt 0;
+    display: grid;
+    grid-template-columns: 1fr var(--amount-col-width);
+    column-gap: 10pt;
+    font-weight: bold;
+    margin-top: 30pt;
+    margin-bottom: 10pt;
+  }
+  .description-header span:last-child { text-align: right; }
+
+  .vehicle-details {
+    margin: 15pt 0;
+    line-height: 1.6;
+  }
+
+  .vehicle-details div {
+    margin-bottom: 3pt;
+  }
+
+  :root { --amount-col-width: 5cm; }
+
+  .amount-section {
+    margin-top: 80pt;
+    margin-right: 20pt;
+  }
+
+  .amount-row {
+    display: grid;
+    grid-template-columns: 1fr var(--amount-col-width);
+    column-gap: 10pt;
+    margin-bottom: 5pt;
+    align-items: baseline;
+  }
+  .amount-row .amount-value {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .total-section {
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
+    padding: 8pt 0;
+    margin-top: 10pt;
+    display: grid;
+    grid-template-columns: 1fr var(--amount-col-width);
+    column-gap: 10pt;
+    font-weight: bold;
+  }
+  .total-section .amount-value { text-align: right; font-variant-numeric: tabular-nums; }
+
+  .amount-words {
+    margin-top: 15pt;
+    margin-bottom: 30pt;
+  }
+
+  .signature-section {
+    margin-top: 60pt;
+  }
+
+  .signature-title {
+    font-weight: bold;
+    margin-bottom: 80pt;
+  }
+
+  .signature-label {
+    font-weight: bold;
+  }
+
+  @media print {
+    body { margin: 0; }
+    .page { padding: 15pt; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- Header -->
+  <div class="header-title">GULF ADJUSTERS, SURVEYORS & SERVICES LLC</div>
+
+  <div class="vat-number">VAT IN No : OM1100245885</div>
+
+  <div class="tax-invoice-title">TAX INVOICE</div>
+
+  <!-- Customer Section -->
+  <div class="customer-section">
+    <div class="customer-label">Customer</div>
+    <div class="customer-info"><strong>{{customer_name}}</strong></div>
+    <div class="customer-info">GSM : 94144344</div>
+  </div>
+
+  <!-- Ref and Date Section -->
+  <div class="ref-date-section">
+    <div><strong>Ref No :</strong> {{ref_number}}</div>
+    <div><strong>Date :</strong> {{invoice_date}}</div>
+  </div>
+
+  <!-- Description Header -->
+  <div class="description-header">
+    <span>Description</span>
+    <span>Amount(RO)</span>
+  </div>
+
+  <!-- Valuation Description -->
+  <div style="margin-bottom: 10pt;">
+    <strong>Valuation fee for vehicle/equipment as per below :</strong>
+  </div>
+
+  <!-- Vehicle Details -->
+  <div class="vehicle-details">
+    <div><strong>Make</strong> : {{car_company}}</div>
+    <div><strong>Type</strong> : {{vehicle_type}}</div>
+    <div><strong>Model</strong> : {{car_model}}</div>
+    <div><strong>Registration No</strong> : {{registration_number}} / {{vehicle_color}}</div>
+  </div>
+
+  <div style="margin-bottom: 10pt;">
+    <strong>To avail finance from :</strong> {{bank_name}}
+  </div>
+
+  <!-- Amount Section -->
+  <div class="amount-section">
+    <div class="amount-row">
+      <div><strong>Amount before Tax :</strong></div>
+      <div class="amount-value">{{amount_before_tax}}</div>
+    </div>
+    <div class="amount-row">
+      <div><strong>Add : VAT Tax 5% :</strong></div>
+      <div class="amount-value">{{vat_amount}}</div>
+    </div>
+  </div>
+
+  <!-- Total Section -->
+  <div class="total-section">
+    <div><strong>Total</strong> Rial Omani {{total_amount_words}}</div>
+    <div class="amount-value"><strong>{{total_amount}}</strong></div>
+  </div>
+
+  <!-- Amount in Words -->
+  <div class="amount-words">
+    
+  </div>
+
+  <!-- Signature Section -->
+  <div class="signature-section">
+    <div class="signature-title">For Gulf Adjusters, Surveyors & Services LLC</div>
+    <div class="signature-label">Finance Executive</div>
+  </div>
+
+</div>
+
+</body>
+</html>
