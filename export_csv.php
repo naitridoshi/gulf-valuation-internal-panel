@@ -18,7 +18,33 @@ header('Content-Disposition: attachment; filename=valuations.csv');
 $output = fopen('php://output', 'w');
 
 // Output the column headings
-fputcsv($output, array('REF Number', 'Valuation Date', 'Requestor Name', 'Mobile Number', 'Bank Name','Buyer','Seller','Place of Assset','Car Company','Vehicle Type','Car Model', 'Registration Number', 'Year of Manufacture', 'Date of Registration','Chassis Number', 'Engine Number', 'Odometer Reading', 'Features', 'Special Note', 'Engine Transmission', 'Body Paint', 'Tyres', 'Valuation Amount', 'Forced Sale Valuation Amount'));
+fputcsv($output, array(
+    'REF Number',
+    'Valuation Date',
+    'Requestor Name',
+    'Mobile Number',
+    'Seller',
+    'Place of Asset',
+    'Car Company',
+    'Bank Name',
+    'Vehicle Type',
+    'Car Model',
+    'Registration Number',
+    'Vehicle Color',
+    'Year of Manufacture',
+    'Date of Registration',
+    'Chassis Number',
+    'Engine Number',
+    'Odometer Reading',
+    'Transmission Type',
+    'Features',
+    'Special Note',
+    'Engine Transmission',
+    'Body Paint',
+    'Tyres',
+    'Valuation Amount',
+    'Forced Sale Valuation Amount',
+));
 
 // Loop through the valuations and output them
 foreach ($valuations as $valuation) {
@@ -27,19 +53,20 @@ foreach ($valuations as $valuation) {
         date('d/m/Y', strtotime($valuation['valuation_date'])),
         $valuation['requestor_name'] ?? '',
         $valuation['requestor_contact_2'] ?? '',
-        $valuation['bank_name'] ?? '',
-        $valuation['buyer'] ?? '',
         $valuation['seller'] ?? '',
         $valuation['place_of_asset'] ?? '',
         $valuation['car_company'] ?? '',
+        $valuation['bank_name'] ?? '',
         $valuation['vehicle_type'] ?? '',
         $valuation['car_model'] ?? '',
         $valuation['registration_number'] ?? '',
-        $valuation['date_of_registration'] ?? '',
+        $valuation['vehicle_color'] ?? '',
         $valuation['year_of_manufacture'] ?? '',
+        $valuation['date_of_registration'] ?? '',
         $valuation['chassis_number'] ?? '',
         $valuation['engine_number'] ?? '',
         $valuation['odometer_reading'] ?? '',
+        $valuation['transmission_type'] ?? '',
         $valuation['features'] ?? '',
         $valuation['special_note'] ?? '',
         $valuation['engine_transmission'] ?? '',
