@@ -79,7 +79,7 @@
     margin-top: 30pt;
     margin-bottom: 10pt;
   }
-  .description-header span:last-child { text-align: right; }
+  .description-header span:last-child { text-align: right; justify-self: end; }
 
   .vehicle-details {
     margin: 15pt 0;
@@ -94,7 +94,6 @@
 
   .amount-section {
     margin-top: 80pt;
-    margin-right: 20pt;
   }
 
   .amount-row {
@@ -106,6 +105,7 @@
   }
   .amount-row .amount-value {
     text-align: right;
+    justify-self: end;
     font-variant-numeric: tabular-nums;
   }
 
@@ -119,7 +119,11 @@
     column-gap: 10pt;
     font-weight: bold;
   }
-  .total-section .amount-value { text-align: right; font-variant-numeric: tabular-nums; }
+  .total-section .amount-value {
+    text-align: right;
+    justify-self: end;
+    font-variant-numeric: tabular-nums;
+  }
 
   .amount-words {
     margin-top: 15pt;
