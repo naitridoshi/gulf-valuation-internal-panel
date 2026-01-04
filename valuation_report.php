@@ -93,7 +93,7 @@ include 'includes/sidebar.php';
                             <td><?php echo htmlspecialchars($valuation['vehicle_type']); ?></td>
                         </tr>
                         <tr>
-                            <td><strong>Model</strong></td>
+                            <td><strong>Model Year</strong></td>
                             <td><?php echo htmlspecialchars($valuation['car_model']); ?></td>
                         </tr>
                         <tr>

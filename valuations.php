@@ -246,7 +246,7 @@ include 'includes/sidebar.php';
                                     </datalist>
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label for="car_model" class="form-label">Model <span class="text-danger">*</span></label>
+                                    <label for="car_model" class="form-label">Model Year <span class="text-danger">*</span></label>
                                     <input type="text" name="car_model" id="car_model" class="form-control form-control-sm" style="min-width: 0; width: 100%;" list="car_model_list" placeholder="Enter or select vehicle model" value="<?php echo $action == 'edit' ? htmlspecialchars($valuation['car_model']) : ''; ?>" required>
                                     <datalist id="car_model_list">
                                         <?php foreach ($car_models as $model): ?>

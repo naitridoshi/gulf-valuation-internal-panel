@@ -28,7 +28,7 @@ fputcsv($output, array(
     'Car Company',
     'Bank Name',
     'Vehicle Type',
-    'Car Model',
+    'Car Model Year',
     'Registration Number',
     'Vehicle Color',
     'Year of Manufacture',
