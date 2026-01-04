@@ -16,8 +16,14 @@ $stmt = $pdo->query("SELECT COUNT(*) as total FROM valuations");
 $total_records = $stmt->fetch()['total'];
 $total_pages = ceil($total_records / $records_per_page);
 
-// Fetch valuations for the current page
-$stmt = $pdo->prepare("SELECT id, ref_number, valuation_date, valuation_amount FROM valuations ORDER BY created_at DESC LIMIT :limit OFFSET :offset");
+// Fetch valuations for the current page (order by created date, then numeric suffix of ref_number)
+$stmt = $pdo->prepare(
+    "SELECT id, ref_number, valuation_date, valuation_amount
+     FROM valuations
+     ORDER BY created_at DESC,
+              CAST(SUBSTRING_INDEX(ref_number, '/', -1) AS UNSIGNED) DESC
+     LIMIT :limit OFFSET :offset"
+);
 $stmt->bindValue(':limit', (int)$records_per_page, PDO::PARAM_INT);
 $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
 $stmt->execute();
