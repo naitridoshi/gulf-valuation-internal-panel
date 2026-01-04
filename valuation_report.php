@@ -172,7 +172,15 @@ include 'includes/sidebar.php';
                         </tr>
                         <tr>
                             <td><strong>Amount</strong></td>
-                            <td>R.O. <?php echo number_format($valuation['valuation_amount'], 3); ?></td>
+                            <td>R.O. <?php echo number_format($valuation['invoice_amount'], 3); ?></td>
+                        </tr>
+                        <tr>
+                            <td><strong>VAT (5%)</strong></td>
+                            <td>R.O. <?php echo number_format($valuation['invoice_vat'], 3); ?></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Total Amount</strong></td>
+                            <td>R.O. <?php echo number_format($valuation['invoice_total'], 3); ?></td>
                         </tr>
                     </table>
                 </div>

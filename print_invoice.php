@@ -23,10 +23,10 @@ if (!$valuation) {
     exit;
 }
 
-// Calculate amounts
-$amount_before_tax = floatval($valuation['valuation_amount']);
-$vat_amount = $amount_before_tax * 0.05;
-$total_amount = $amount_before_tax + $vat_amount;
+// Use stored invoice amounts
+$amount_before_tax = floatval($valuation['invoice_amount']);
+$vat_amount = floatval($valuation['invoice_vat']);
+$total_amount = floatval($valuation['invoice_total']);
 
 // Format amounts
 $amount_before_tax_formatted = number_format($amount_before_tax, 3);

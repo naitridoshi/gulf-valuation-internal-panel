@@ -223,7 +223,8 @@ include 'includes/sidebar.php';
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="buyer" class="form-label">Name of the Applicant (Buyer) <span class="text-danger">*</span></label>
-                                    <input type="text" name="buyer" id="buyer" class="form-control" value="<?php echo $action == 'edit' ? htmlspecialchars($valuation['buyer']) : ''; ?>" required>
+                                    <input type="text" id="buyer_display" class="form-control" value="<?php echo $action == 'edit' ? htmlspecialchars($valuation['requestor_name']) : ''; ?>" required disabled>
+                                    <input type="hidden" name="buyer" id="buyer" value="<?php echo $action == 'edit' ? htmlspecialchars($valuation['requestor_name']) : ''; ?>">
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="seller" class="form-label">Seller</label>
@@ -373,6 +374,22 @@ include 'includes/sidebar.php';
                                     <small id="forced_sale_valuation_amount_in_words" class="form-text text-muted"></small>
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="invoice_amount" class="form-label">Invoice Amount (R.O.) <span class="text-danger">*</span></label>
+                                    <input type="number" name="invoice_amount" id="invoice_amount" class="form-control" step="0.001" min="0.001" placeholder="Enter invoice amount (e.g., 100.000)" value="<?php echo ($action == 'edit' && isset($valuation['invoice_amount'])) ? number_format($valuation['invoice_amount'], 3, '.', '') : ''; ?>" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="invoice_vat_display" class="form-label">VAT 5% (R.O.)</label>
+                                    <input type="text" id="invoice_vat_display" class="form-control" value="<?php echo ($action == 'edit' && isset($valuation['invoice_vat'])) ? number_format($valuation['invoice_vat'], 3, '.', '') : ''; ?>" disabled>
+                                    <input type="hidden" name="invoice_vat" id="invoice_vat" value="<?php echo ($action == 'edit' && isset($valuation['invoice_vat'])) ? number_format($valuation['invoice_vat'], 3, '.', '') : ''; ?>">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="invoice_total_display" class="form-label">Total Invoice Amount (R.O.)</label>
+                                    <input type="text" id="invoice_total_display" class="form-control" value="<?php echo ($action == 'edit' && isset($valuation['invoice_total'])) ? number_format($valuation['invoice_total'], 3, '.', '') : ''; ?>" disabled>
+                                    <input type="hidden" name="invoice_total" id="invoice_total" value="<?php echo ($action == 'edit' && isset($valuation['invoice_total'])) ? number_format($valuation['invoice_total'], 3, '.', '') : ''; ?>">
+                                </div>
+                            </div>
                             <h4 class="mt-4"><?php echo htmlspecialchars($settings['company_signature'] ?? 'For GULF ADJUSTERS, SURVEYORS & SERVICES LLC'); ?></h4>
                             <div class="mb-3">
                                 <p><?php echo nl2br(htmlspecialchars($settings['valuation_statement'] ?? 'Based on our observation, age, maintenance and performance of the vehicle, we are of the opinion that the present market value of the above vehicle with the existing specification on “as is where is conditions” is approximately')); ?></p>
@@ -402,6 +419,54 @@ include 'includes/sidebar.php';
 <script src="assets/js/validate.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    var requestorName = document.getElementById('requestor_name');
+    var buyer = document.getElementById('buyer');
+    var buyerDisplay = document.getElementById('buyer_display');
+    if (requestorName && buyer && buyerDisplay) {
+        var syncBuyer = function() {
+            buyer.value = requestorName.value;
+            buyerDisplay.value = requestorName.value;
+        };
+        syncBuyer();
+        requestorName.addEventListener('input', syncBuyer);
+    }
+
+    var invoiceAmount = document.getElementById('invoice_amount');
+    var invoiceVatDisplay = document.getElementById('invoice_vat_display');
+    var invoiceVat = document.getElementById('invoice_vat');
+    var invoiceTotalDisplay = document.getElementById('invoice_total_display');
+    var invoiceTotal = document.getElementById('invoice_total');
+    if (invoiceAmount && invoiceVatDisplay && invoiceVat && invoiceTotalDisplay && invoiceTotal) {
+        var formatAmount = function(value) {
+            return value.toFixed(3);
+        };
+        var setInvoiceTotals = function(amount) {
+            var vat = amount * 0.05;
+            var total = amount + vat;
+            var vatValue = formatAmount(vat);
+            var totalValue = formatAmount(total);
+            invoiceVatDisplay.value = vatValue;
+            invoiceVat.value = vatValue;
+            invoiceTotalDisplay.value = totalValue;
+            invoiceTotal.value = totalValue;
+        };
+        var calculateInvoice = function() {
+            var amount = parseFloat(invoiceAmount.value);
+            if (isNaN(amount)) {
+                invoiceVatDisplay.value = '';
+                invoiceVat.value = '';
+                invoiceTotalDisplay.value = '';
+                invoiceTotal.value = '';
+                return;
+            }
+            setInvoiceTotals(amount);
+        };
+        if (!invoiceVatDisplay.value && !invoiceTotalDisplay.value && invoiceAmount.value) {
+            calculateInvoice();
+        }
+        invoiceAmount.addEventListener('input', calculateInvoice);
+    }
+
     var select = document.getElementById('car_company_select');
     select.addEventListener('change', function() {
         if (this.value === 'new') {

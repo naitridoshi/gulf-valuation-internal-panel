@@ -58,7 +58,7 @@ $template_html = str_replace('</head>', '    <base href="assets/"></head>', $tem
 
 // Conditionally remove the forced sale value block if the amount is zero or not set
 if (empty($valuation['forced_sale_valuation_amount']) || floatval($valuation['forced_sale_valuation_amount']) == 0) {
-    $pattern = '#\s*<div class="valuation-box" style="margin-top: 3pt;">\s*<div>\s*<span class="amount-box">Constrained Realization Circumstances \(FMV\): \{\{forced_value\}\}<\/span>\s*<span class="amount-box">Rials Omani \{\{forced_value_words\}\}<\/span>\s*<\/div>\s*<\/div>#s';
+    $pattern = '#\s*<div class="valuation-box"[^>]*>\s*<div>\s*<span class="amount-box"[^>]*>Constrained Realization Circumstances \(FMV\): \{\{forced_value\}\}<\/span>\s*<span class="amount-box"[^>]*>Rials Omani \{\{forced_value_words\}\}<\/span>\s*<\/div>\s*<\/div>#s';
     $template_html = preg_replace($pattern, '', $template_html);
 }
 
@@ -96,7 +96,7 @@ $replacements = [
     '{{registration_number}}' => htmlspecialchars($valuation['registration_number']),
     '{{vehicle_color}}' => htmlspecialchars($valuation['vehicle_color'] ?? ''),
     '{{year_of_manufacture}}' => htmlspecialchars($valuation['year_of_manufacture']),
-    '{{date_of_registration}}' => htmlspecialchars($valuation['date_of_registration']),
+    '{{date_of_registration}}' => date('d-m-Y', strtotime($valuation['date_of_registration'])),
     '{{chassis_number}}' => htmlspecialchars($valuation['chassis_number']),
     '{{engine_number}}' => htmlspecialchars($valuation['engine_number']),
     '{{odometer_reading}}' => htmlspecialchars($valuation['odometer_reading']),

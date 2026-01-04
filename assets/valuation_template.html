@@ -107,82 +107,82 @@
       <tr>
   <td style="text-align:left; font-weight:bold; color:#c00; font-size:10pt;">REF: {{ref_prefix}}</td>
         <td></td>
-  <td style="text-align:right; font-weight:bold; color:#c00; font-size:10pt;">Date: {{valuation_date}}</td>
+  <td style="text-align:right; font-weight:bold; color:#c00; font-size:10pt; text-transform: uppercase;">Date: {{valuation_date}}</td>
       </tr>
     </table>
 
     <!-- Request block -->
     <table class="data">
       <colgroup><col class="col-label"><col class="col-colon"><col class="col-value"></colgroup>
-      <tr><td class="label">WE THE UNDERSIGNED AT THE REQUEST</td><td class="colon">:</td><td>{{requestor_name}} / {{requestor_contact}}</td></tr>
-      <tr><td class="label">TO CARRY OUT THE VALUATION OF</td><td class="colon">:</td><td>{{car_company}}</td></tr>
-      <tr><td class="label">TO AVAIL FINANCE FROM</td><td class="colon">:</td><td>{{bank_name}}</td></tr>
+      <tr><td class="label">WE THE UNDERSIGNED AT THE REQUEST</td><td class="colon">:</td><td style="text-transform: uppercase;">{{requestor_name}} / {{requestor_contact}}</td></tr>
+      <tr><td class="label">TO CARRY OUT THE VALUATION OF</td><td class="colon">:</td><td style="text-transform: uppercase;">{{car_company}}</td></tr>
+      <tr><td class="label">TO AVAIL FINANCE FROM</td><td class="colon">:</td><td style="text-transform: uppercase;">{{bank_name}}</td></tr>
     </table>
 
     <!-- We now report the follows -->
     <table class="data">
       <colgroup><col class="col-label"><col class="col-colon"><col class="col-value"></colgroup>
       <tr>
-        <td><span class="section-tag">We now report the follows:</span></td>
+        <td><span class="section-tag" style="text-transform: uppercase;">We now report the follows:</span></td>
         <td></td><td></td>
       </tr>
-      <tr><td class="label">Name of the Applicant (Buyer)</td><td class="colon">:</td><td>{{requestor_name}}</td></tr>
-      <tr><td class="label">Seller</td><td class="colon">:</td><td>{{seller}}</td></tr>
-      <tr><td class="label">Place of Asset</td><td class="colon">:</td><td>{{place_of_asset}}</td></tr>
+      <tr><td class="label" style="text-transform: uppercase;">Name of the Applicant (Buyer)</td><td class="colon">:</td><td style="text-transform: uppercase;">{{requestor_name}}</td></tr>
+      <tr><td class="label" style="text-transform: uppercase;">Seller</td><td class="colon">:</td><td style="text-transform: uppercase;">{{seller}}</td></tr>
+      <tr><td class="label" style="text-transform: uppercase;">Place of Asset</td><td class="colon" style="text-transform: uppercase;">:</td><td style="text-transform: uppercase;">{{place_of_asset}}</td></tr>
     </table>
 
     <!-- DETAILS OF VEHICLE (chip on the right) -->
     <table class="data">
       <colgroup><col class="col-label"><col class="col-colon"><col class="col-value"></colgroup>
       <tr><td></td><td></td><td><span class="section-tag">DETAILS OF VEHICLE</span></td></tr>
-      <tr><td class="label">Make</td><td class="colon">:</td><td>{{car_company}}</td></tr>
-      <tr><td class="label">Type</td><td class="colon">:</td><td>{{vehicle_type}}</td></tr>
-      <tr><td class="label">Model Year</td><td class="colon">:</td><td>{{car_model}}</td></tr>
-      <tr><td class="label">Registration Number</td><td class="colon">:</td><td><span style="display: inline-block; min-width: 200px;">{{registration_number}}</span> / {{vehicle_color}}</td></tr>
-      <tr><td class="label">Year of Manufacture</td><td class="colon">:</td><td>{{year_of_manufacture}}</td></tr>
-      <tr><td class="label">Date of Registration</td><td class="colon">:</td><td>{{date_of_registration}}</td></tr>
-      <tr><td class="label">Chassis Number</td><td class="colon">:</td><td>{{chassis_number}}</td></tr>
-      <tr><td class="label">Engine Number</td><td class="colon">:</td><td>{{engine_number}}</td></tr>
-      <tr><td class="label">Odometer Reading</td><td class="colon">:</td><td>{{odometer_reading}}</td></tr>
-      <tr><td class="label">Transmission type</td><td class="colon">:</td><td>{{transmission_type}}</td></tr>
-      <tr><td class="label">Features</td><td class="colon">:</td><td>{{features}}</td></tr>
-      <tr><td class="label">Special Observation</td><td class="colon">:</td><td>{{special_note}}</td></tr>
+      <tr><td class="label" style="text-transform: uppercase;">Make</td><td class="colon">:</td><td style="text-transform: uppercase;">{{car_company}}</td></tr>
+      <tr><td class="label" style="text-transform: uppercase;">Type</td><td class="colon">:</td><td style="text-transform: uppercase;">{{vehicle_type}}</td></tr>
+      <tr><td class="label" style="text-transform: uppercase;">Model Year</td><td class="colon">:</td><td style="text-transform: uppercase;">{{car_model}}</td></tr>
+      <tr><td class="label" style="text-transform: uppercase;">Registration Number</td><td class="colon">:</td><td><span style="display: inline-block; min-width: 200px; text-transform: uppercase;">{{registration_number}}</span> / {{vehicle_color}}</td></tr>
+      <tr><td class="label" style="text-transform: uppercase;">Year of Manufacture</td><td class="colon">:</td><td style="text-transform: uppercase;">{{year_of_manufacture}}</td></tr>
+      <tr><td class="label" style="text-transform: uppercase;">Date of Registration</td><td class="colon">:</td><td style="text-transform: uppercase;">{{date_of_registration}}</td></tr>
+      <tr><td class="label" style="text-transform: uppercase;">Chassis Number</td><td class="colon">:</td><td style="text-transform: uppercase;">{{chassis_number}}</td></tr>
+      <tr><td class="label" style="text-transform: uppercase;">Engine Number</td><td class="colon">:</td><td style="text-transform: uppercase;">{{engine_number}}</td></tr>
+      <tr><td class="label" style="text-transform: uppercase;">Odometer Reading</td><td class="colon">:</td><td style="text-transform: uppercase;">{{odometer_reading}}</td></tr>
+      <tr><td class="label" style="text-transform: uppercase;">Transmission type</td><td class="colon">:</td><td style="text-transform: uppercase;">{{transmission_type}}</td></tr>
+      <tr><td class="label" style="text-transform: uppercase;">Features</td><td class="colon">:</td><td style="text-transform: uppercase;">{{features}}</td></tr>
+      <tr><td class="label" style="text-transform: uppercase;">Special Observation/Consideration</td><td class="colon">:</td><td style="text-transform: uppercase;">{{special_note}}</td></tr>
     </table>
 
     <!-- OBSERVATION (chip on the right) -->
     <table class="data" style="margin-bottom: 4pt;">
       <colgroup><col class="col-label"><col class="col-colon"><col class="col-value"></colgroup>
       <tr><td></td><td></td><td><span class="section-tag">OBSERVATION</span></td></tr>
-      <tr><td class="label">Engine &amp; Transmission</td><td class="colon">:</td><td>{{engine_transmission}}</td></tr>
-      <tr><td class="label">Body &amp; Paint</td><td class="colon">:</td><td>{{body_paint}}</td></tr>
-      <tr><td class="label">Tyres</td><td class="colon">:</td><td>{{tyres}}</td></tr>
+      <tr><td class="label" style="text-transform: uppercase;">Engine &amp; Transmission</td><td class="colon">:</td><td style="text-transform: uppercase;">{{engine_transmission}}</td></tr>
+      <tr><td class="label" style="text-transform: uppercase;">Body &amp; Paint</td><td class="colon">:</td><td style="text-transform: uppercase;">{{body_paint}}</td></tr>
+      <tr><td class="label" style="text-transform: uppercase;">Tyres</td><td class="colon">:</td><td style="text-transform: uppercase;">{{tyres}}</td></tr>
     </table>
 
     <div class="valuation-box" style="margin-top: 3pt;">
-  <p>{{valuation_statement_html}}</p>
+  <p style="text-transform: uppercase;">{{valuation_statement_html}}</p>
   <div>
-    <span class="amount-box">RO: {{valuation_amount}}</span>
-    <span class="amount-box">Rials Omani {{valuation_amount_words}}</span>
+    <span class="amount-box" style="text-transform: uppercase;">RO: {{valuation_amount}}</span>
+    <span class="amount-box" style="text-transform: uppercase;">Rials Omani {{valuation_amount_words}}</span>
   </div>
     </div>
 
     <div class="valuation-box" style="margin-top: 3pt;">
   <div>
-    <span class="amount-box">Constrained Realization Circumstances (FMV): {{forced_value}}</span>
-    <span class="amount-box">Rials Omani {{forced_value_words}}</span>
+    <span class="amount-box" style="text-transform: uppercase;">Constrained Realization Circumstances (FMV): {{forced_value}}</span>
+    <span class="amount-box" style="text-transform: uppercase;">Rials Omani {{forced_value_words}}</span>
   </div>
     </div>
 
-    <p style="margin-top: 3pt;">
+    <p style="margin-top: 3pt; text-transform: uppercase;">
       This report is true to the best of our knowledge and is issued without prejudice subject to the valuation as per condition of the vehicle at the date, place and time of our inspection.
     </p>
     </div>
 
     <div class="sign-block">
       <div><strong>For GULF ADJUSTERS, SURVEYORS &amp; SERVICES LLC</strong></div>
-      <div style="font-size: 8pt;">{{complete_ref_number}}</div>
-      <div style="margin-top:1cm; font-weight:bold">Authorized Signatory</div>
-        <ol style="margin:1pt 0 0 14pt; padding:0; font-size:8pt;font-weight:bold">
+      <div style="font-size: 8pt; text-transform: uppercase;">{{complete_ref_number}}</div>
+      <div style="margin-top:1cm; font-weight:bold; text-transform: uppercase;">Authorized Signatory</div>
+        <ol style="margin:1pt 0 0 14pt; padding:0; font-size:8pt;font-weight:bold; text-transform: uppercase;">
             <li>Refer basis of valuation, specifications assumption, saving clauses forming part of this valuation refer overleaf</li>
             <li>Forced market value to be considered atleast 80% of assessed market value, if not indicated above.</li>
             <li>Relevant documents attached</li>

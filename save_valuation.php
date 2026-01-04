@@ -41,6 +41,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $forced_sale_valuation_amount = !empty($_POST['forced_sale_valuation_amount']) 
     ? (float)$_POST['forced_sale_valuation_amount'] 
     : null;
+    $invoice_amount = isset($_POST['invoice_amount']) ? (float)$_POST['invoice_amount'] : 0.0;
+    $invoice_vat = round($invoice_amount * 0.05, 3);
+    $invoice_total = round($invoice_amount + $invoice_vat, 3);
 
     // Fallback: Set buyer to requestor_name if empty
     if (empty($buyer)) {
@@ -71,6 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($body_paint)) $errors[] = 'Body & Paint is required.';
     if (empty($tyres)) $errors[] = 'Tyres is required.';
     if ($valuation_amount <= 0) $errors[] = 'Valuation Amount must be greater than zero.';
+    if ($invoice_amount <= 0) $errors[] = 'Invoice Amount must be greater than zero.';
 
     // Date validation
     $today = date('Y-m-d');
@@ -117,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $bank_id, $buyer, $seller, $place_of_asset, $final_car_company, $vehicle_type, $car_model,
             $registration_number, $vehicle_color, $year_of_manufacture, $date_of_registration, $chassis_number,
             $engine_number, $odometer_reading, $transmission_type, $features, $special_note, $engine_transmission,
-            $body_paint, $tyres, $valuation_amount,$forced_sale_valuation_amount 
+            $body_paint, $tyres, $valuation_amount, $forced_sale_valuation_amount, $invoice_amount, $invoice_vat, $invoice_total
         ], true));
         $stmt = $pdo->prepare("
             INSERT INTO valuations (
@@ -125,8 +129,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 bank_id, buyer, seller, place_of_asset, car_company, vehicle_type, car_model,
                 registration_number, vehicle_color, year_of_manufacture, date_of_registration, chassis_number,
                 engine_number, odometer_reading, transmission_type, features, special_note, engine_transmission,
-                body_paint, tyres, valuation_amount,forced_sale_valuation_amount 
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                body_paint, tyres, valuation_amount, forced_sale_valuation_amount, invoice_amount, invoice_vat, invoice_total
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         try {
             $success = $stmt->execute([
@@ -134,7 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $bank_id, $buyer, $seller ?: null, $place_of_asset, $final_car_company, $vehicle_type, $car_model,
                 $registration_number, $vehicle_color ?: null, $year_of_manufacture, $date_of_registration, $chassis_number,
                 $engine_number, $odometer_reading, $transmission_type, $features, $special_note ?: null, $engine_transmission,
-                $body_paint, $tyres, $valuation_amount, $forced_sale_valuation_amount ?: null
+                $body_paint, $tyres, $valuation_amount, $forced_sale_valuation_amount ?: null, $invoice_amount, $invoice_vat, $invoice_total
             ]);
         } catch (PDOException $e) {
             error_log("INSERT failed: " . $e->getMessage());
@@ -164,7 +168,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 bank_id = ?, buyer = ?, seller = ?, place_of_asset = ?, car_company = ?, vehicle_type = ?,
                 car_model = ?, registration_number = ?, vehicle_color = ?, year_of_manufacture = ?, date_of_registration = ?,
                 chassis_number = ?, engine_number = ?, odometer_reading = ?, transmission_type = ?, features = ?, special_note = ?,
-                engine_transmission = ?, body_paint = ?, tyres = ?, valuation_amount = ?, forced_sale_valuation_amount = ?
+                engine_transmission = ?, body_paint = ?, tyres = ?, valuation_amount = ?, forced_sale_valuation_amount = ?,
+                invoice_amount = ?, invoice_vat = ?, invoice_total = ?
             WHERE id = ?
         ");
         try {
@@ -173,7 +178,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $bank_id, $buyer, $seller ?: null, $place_of_asset, $final_car_company, $vehicle_type,
                 $car_model, $registration_number, $vehicle_color ?: null, $year_of_manufacture, $date_of_registration,
                 $chassis_number, $engine_number, $odometer_reading, $transmission_type, $features, $special_note ?: null,
-                $engine_transmission, $body_paint, $tyres, $valuation_amount, $forced_sale_valuation_amount, $id
+                $engine_transmission, $body_paint, $tyres, $valuation_amount, $forced_sale_valuation_amount,
+                $invoice_amount, $invoice_vat, $invoice_total, $id
             ]);
         } catch (PDOException $e) {
             error_log("UPDATE failed: " . $e->getMessage());
