@@ -5,16 +5,17 @@
 <title>Valuation Report</title>
 <style>
   /* ---- PAGE SETUP ---- */
-  @page { size: A4; margin: 0; }
+  @page { size: A4; margin: 8mm; }
 
   :root{
     --top-gap:   4cm;   /* fixed 4.5cm header space for pre-printed letterhead */
     --footer-h:  1.5cm;   /* ISO image height */
     --footer-gap: 4cm;   /* footer space from bottom */
-    --footer-logo-bottom: 1.3cm; /* logo bottom offset from page bottom */
+    --footer-logo-bottom: 0.8cm; /* logo bottom offset from page bottom */
   }
 
   html, body { height: 100%; }
+  * { box-sizing: border-box; }
   body {
     margin: 0;
     font-family: Calibri, sans-serif;
@@ -26,6 +27,10 @@
   }
 
   /* one-page container with reserved header + footer space */
+  .sheet {
+    width: 210mm;
+    margin: 0 auto;
+  }
   .page {
     position: relative;
     display: flex;
@@ -84,6 +89,8 @@
   p { margin: 2pt 0; font-family: Calibri, sans-serif; }
 
   @media print {
+    body { margin: 0; }
+    .sheet { width: 100%; }
     .page {
       padding: var(--top-gap) 6pt var(--footer-gap) 6pt; /* SAME as screen */
       min-height: calc(297mm - var(--top-gap) - var(--footer-gap));
