@@ -352,7 +352,7 @@ include 'includes/sidebar.php';
 
                                 <div class="col-md-6 mb-3">
                                     <label for="forced_sale_valuation_amount" class="form-label">
-                                        Forced Market Value (R.O.)
+                                        Constrained Realization Circumstances (FMV) (R.O.)
                                     </label>
                                     <input 
                                         type="number" 

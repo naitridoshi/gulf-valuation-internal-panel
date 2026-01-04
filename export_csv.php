@@ -43,7 +43,7 @@ fputcsv($output, array(
     'Body Paint',
     'Tyres',
     'Valuation Amount',
-    'Forced Sale Valuation Amount',
+    'Constrained Realization Circumstances (FMV)',
 ));
 
 // Loop through the valuations and output them

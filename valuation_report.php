@@ -154,7 +154,7 @@ include 'includes/sidebar.php';
                     </table>
                     <p>Based on our observation, age, maintenance and performance of the vehicle, we are of the opinion that the present market value of the above vehicle with the existing specification on “as is where is conditions” is approximately<br>
                     <strong>R.O. <?php echo number_format($valuation['valuation_amount'], 3); ?> (Rials Omani <?php echo numberToWords($valuation['valuation_amount']); ?>)</strong></p>
-                    <p><strong>FORCED MARKET VALUE: R.O. <?php echo number_format($valuation['forced_sale_valuation_amount'], 3); ?> (Rials Omani <?php echo numberToWords($valuation['forced_sale_valuation_amount']); ?>)</strong></p>
+                    <p><strong>Constrained Realization Circumstances (FMV): R.O. <?php echo number_format($valuation['forced_sale_valuation_amount'], 3); ?> (Rials Omani <?php echo numberToWords($valuation['forced_sale_valuation_amount']); ?>)</strong></p>
                     <p><?php echo nl2br(htmlspecialchars($settings['valuation_footer'] ?? '')); ?></p>
                     <p><strong><?php echo htmlspecialchars(substr($valuation['ref_number'], strrpos($valuation['ref_number'], '/') + 1)); ?></strong></p>
                     <h4>TAX INVOICE</h4>
