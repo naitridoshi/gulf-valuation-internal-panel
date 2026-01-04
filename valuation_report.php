@@ -55,7 +55,6 @@ include 'includes/sidebar.php';
                     <h3 class="card-title">Valuation Details</h3>
                     <div class="card-tools">
                         <button class="btn btn-primary no-print" onclick="printReport()">Print Report</button>
-                        <a href="export_pdf.php?id=<?php echo $valuation_id; ?>" class="btn btn-success no-print disabled">Export to PDF</a>
                         <a href="print_invoice.php?id=<?php echo $valuation_id; ?>" class="btn btn-warning no-print">Print Invoice</a>
                     </div>
                 </div>
