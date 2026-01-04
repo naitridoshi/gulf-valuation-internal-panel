@@ -58,7 +58,7 @@ $template_html = str_replace('</head>', '    <base href="assets/"></head>', $tem
 
 // Conditionally remove the forced sale value block if the amount is zero or not set
 if (empty($valuation['forced_sale_valuation_amount']) || floatval($valuation['forced_sale_valuation_amount']) == 0) {
-    $pattern = '#\s*<div class="valuation-box" style="margin-top: 3pt;">\s*<div>\s*<span class="amount-box">Constrained Realization Circumstances (FMV): \{\{forced_value\}\}<\/span>\s*<span class="amount-box">Rials Omani \{\{forced_value_words\}\}<\/span>\s*<\/div>\s*<\/div>#s';
+    $pattern = '#\s*<div class="valuation-box" style="margin-top: 3pt;">\s*<div>\s*<span class="amount-box">Constrained Realization Circumstances \(FMV\): \{\{forced_value\}\}<\/span>\s*<span class="amount-box">Rials Omani \{\{forced_value_words\}\}<\/span>\s*<\/div>\s*<\/div>#s';
     $template_html = preg_replace($pattern, '', $template_html);
 }
 
