@@ -44,6 +44,10 @@ fputcsv($output, array(
     'Tyres',
     'Valuation Amount',
     'Constrained Realization Circumstances (FMV)',
+    'Invoice Amount',
+    'Invoice VAT',
+    'Invoice Total',
+    
 ));
 
 // Loop through the valuations and output them
@@ -74,6 +78,9 @@ foreach ($valuations as $valuation) {
         $valuation['tyres'] ?? '',
         number_format($valuation['valuation_amount'] ?? 0, 3),
         number_format($valuation['forced_sale_valuation_amount'] ?? 0, 3),
+        number_format($valuation['invoice_amount'] ?? 0, 3),
+        number_format($valuation['invoice_vat'] ?? 0, 3),
+        number_format($valuation['invoice_total'] ?? 0, 3),
     ));
 }
 
