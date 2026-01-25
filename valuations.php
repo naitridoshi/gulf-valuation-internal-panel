@@ -311,6 +311,7 @@ include 'includes/sidebar.php';
                                                 elseif ($action == 'add') echo 'selected';
                                             ?>>KM</option>
                                             <option value="MILES" <?php echo $action == 'edit' && !empty($valuation['odometer_reading']) && stripos($valuation['odometer_reading'], 'MILES') !== false ? 'selected' : ''; ?>>MILES</option>
+                                            <option value="HOURS" <?php echo $action == 'edit' && !empty($valuation['odometer_reading']) && stripos($valuation['odometer_reading'], 'HOURS') !== false ? 'selected' : ''; ?>>HOURS</option>
                                             <option value="NOT WORKING" <?php echo $action == 'edit' && !empty($valuation['odometer_reading']) && stripos($valuation['odometer_reading'], 'NOT WORKING') !== false ? 'selected' : ''; ?>>NOT WORKING</option>
                                         </select>
                                     </div>
