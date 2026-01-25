@@ -56,10 +56,10 @@ $template_html = file_get_contents($template_path);
 // Add a <base> tag to the head for correct relative path resolution
 $template_html = str_replace('</head>', '    <base href="assets/"></head>', $template_html);
 
-// Conditionally remove the forced sale value block if the amount is zero or not set
+// Conditionally hide the forced sale value block if the amount is zero or not set (keep space but fully invisible)
 if (empty($valuation['forced_sale_valuation_amount']) || floatval($valuation['forced_sale_valuation_amount']) == 0) {
     $pattern = '#\s*<div class="valuation-box"[^>]*>\s*<div>\s*<span class="amount-box"[^>]*>Constrained Realization Circumstances \(FMV\): \{\{forced_value\}\}<\/span>\s*<span class="amount-box"[^>]*>Rials Omani \{\{forced_value_words\}\}<\/span>\s*<\/div>\s*<\/div>#s';
-    $template_html = preg_replace($pattern, '', $template_html);
+    $template_html = preg_replace($pattern, '<div class="valuation-box" style="opacity: 0;"><div><span class="amount-box">&nbsp;</span><span class="amount-box">&nbsp;</span></div></div>', $template_html);
 }
 
 // Prepare data for replacement
