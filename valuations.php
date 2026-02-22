@@ -169,6 +169,7 @@ include 'includes/sidebar.php';
                 ?>
                 <div class="card">
                     <div class="card-body">
+                        <div id="formErrors" class="alert alert-danger d-none"></div>
                         <form id="valuationForm" action="save_valuation.php" method="POST">
                             <div class="row mb-3">
                                 <div class="col-md-6 mb-3">

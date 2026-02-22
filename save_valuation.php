@@ -7,6 +7,17 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $is_ajax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')
+        || (isset($_POST['ajax']) && $_POST['ajax'] === '1')
+        || (!empty($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false);
+
+    $respond_json = function ($status, $payload) {
+        http_response_code($status);
+        header('Content-Type: application/json');
+        echo json_encode($payload);
+        exit;
+    };
+
     $action = trim($_POST['action']);
     $id = (int)$_POST['id'];
     $ref_number = trim($_POST['ref_number']);
@@ -83,9 +94,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($year_of_manufacture > (int)$today) $errors[] = 'Year of Manufacture cannot be in the future.';
 
     if (!empty($errors)) {
-        $_SESSION['error'] = implode('<br>', $errors);
-        header('Location: valuations.php?action=' . $action . '&id=' . $id);
-        exit;
+        if ($is_ajax) {
+            $respond_json(422, ['success' => false, 'errors' => $errors]);
+        } else {
+            $_SESSION['error'] = implode('<br>', $errors);
+            header('Location: valuations.php?action=' . $action . '&id=' . $id);
+            exit;
+        }
     }
 
     // Use car_company_select if not "new", otherwise use car_company
@@ -142,9 +157,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             ]);
         } catch (PDOException $e) {
             error_log("INSERT failed: " . $e->getMessage());
-            $_SESSION['error'] = 'Database error: ' . $e->getMessage();
-            header('Location: valuations.php?action=add');
-            exit;
+            if ($is_ajax) {
+                $respond_json(500, ['success' => false, 'errors' => ['Database error while saving.']]);
+            } else {
+                $_SESSION['error'] = 'Database error: ' . $e->getMessage();
+                header('Location: valuations.php?action=add');
+                exit;
+            }
         }
 
         if ($success) {
@@ -153,13 +172,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?, updated_at = NOW()");
             $stmt->execute(['ref_number', $new_ref_number, $new_ref_number]);
 
-            $_SESSION['success'] = 'Valuation added successfully.';
-            header('Location: valuations.php');
-            exit;
+            if ($is_ajax) {
+                $respond_json(200, ['success' => true, 'redirect' => 'valuations.php']);
+            } else {
+                $_SESSION['success'] = 'Valuation added successfully.';
+                header('Location: valuations.php');
+                exit;
+            }
         } else {
-            $_SESSION['error'] = 'Failed to add valuation.';
-            header('Location: valuations.php?action=add');
-            exit;
+            if ($is_ajax) {
+                $respond_json(500, ['success' => false, 'errors' => ['Failed to add valuation.']]);
+            } else {
+                $_SESSION['error'] = 'Failed to add valuation.';
+                header('Location: valuations.php?action=add');
+                exit;
+            }
         }
     } else if ($action == 'edit' && $id > 0) {
         $stmt = $pdo->prepare("
@@ -183,19 +210,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             ]);
         } catch (PDOException $e) {
             error_log("UPDATE failed: " . $e->getMessage());
-            $_SESSION['error'] = 'Database error: ' . $e->getMessage();
-            header('Location: valuations.php?action=edit&id=' . $id);
-            exit;
+            if ($is_ajax) {
+                $respond_json(500, ['success' => false, 'errors' => ['Database error while saving.']]);
+            } else {
+                $_SESSION['error'] = 'Database error: ' . $e->getMessage();
+                header('Location: valuations.php?action=edit&id=' . $id);
+                exit;
+            }
         }
 
         if ($success) {
-            $_SESSION['success'] = 'Valuation updated successfully.';
-            header('Location: valuations.php');
-            exit;
+            if ($is_ajax) {
+                $respond_json(200, ['success' => true, 'redirect' => 'valuations.php']);
+            } else {
+                $_SESSION['success'] = 'Valuation updated successfully.';
+                header('Location: valuations.php');
+                exit;
+            }
         } else {
-            $_SESSION['error'] = 'Failed to update valuation.';
-            header('Location: valuations.php?action=edit&id=' . $id);
-            exit;
+            if ($is_ajax) {
+                $respond_json(500, ['success' => false, 'errors' => ['Failed to update valuation.']]);
+            } else {
+                $_SESSION['error'] = 'Failed to update valuation.';
+                header('Location: valuations.php?action=edit&id=' . $id);
+                exit;
+            }
         }
     }
 } else {
