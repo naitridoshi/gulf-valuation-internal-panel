@@ -97,6 +97,7 @@ $template = file_get_contents('assets/invoice_template.html');
 
 // Replace placeholders
 $template = str_replace('{{customer_name}}', htmlspecialchars($valuation['requestor_name']), $template);
+$template = str_replace('{{customer_gsm}}', htmlspecialchars($valuation['requestor_contact_2']), $template);
 $template = str_replace('{{ref_number}}', htmlspecialchars($valuation['ref_number']), $template);
 $template = str_replace('{{invoice_date}}', date('d/m/Y', strtotime($valuation['valuation_date'])), $template);
 $template = str_replace('{{car_company}}', htmlspecialchars($valuation['car_company']), $template);
