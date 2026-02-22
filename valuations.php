@@ -6,6 +6,48 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'delete') {
+    $delete_id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
+    if ($delete_id > 0) {
+        $stmt = $pdo->prepare("SELECT ref_number FROM valuations WHERE id = ?");
+        $stmt->execute([$delete_id]);
+        $ref_number_to_delete = $stmt->fetchColumn();
+
+        $stmt = $pdo->prepare("DELETE FROM valuations WHERE id = ?");
+        if ($stmt->execute([$delete_id])) {
+            if ($ref_number_to_delete) {
+                $ref_parts = explode('/', $ref_number_to_delete);
+                $seq_part = end($ref_parts);
+                $year_part = count($ref_parts) >= 2 ? $ref_parts[count($ref_parts) - 2] : '';
+                $current_year = date('y');
+
+                if (ctype_digit($seq_part) && $year_part === $current_year) {
+                    $seq_value = (int)$seq_part;
+                    if ($seq_value > 0) {
+                        $stmt = $pdo->prepare("SELECT COUNT(*) FROM valuations WHERE ref_number = ?");
+                        $stmt->execute([$ref_number_to_delete]);
+                        $ref_exists = (int)$stmt->fetchColumn() > 0;
+
+                        if (!$ref_exists) {
+                            $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?, updated_at = NOW()");
+                            $stmt->execute(['ref_number', $seq_value, $seq_value]);
+                        }
+                    }
+                }
+            }
+
+            $_SESSION['success'] = 'Valuation deleted successfully.';
+        } else {
+            $_SESSION['error'] = 'Failed to delete valuation.';
+        }
+    } else {
+        $_SESSION['error'] = 'Invalid valuation id.';
+    }
+
+    header('Location: valuations.php');
+    exit;
+}
+
 $action = isset($_GET['action']) ? $_GET['action'] : 'list';
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
@@ -114,7 +156,11 @@ include 'includes/sidebar.php';
                                             <td>R.O. <?php echo number_format($val['valuation_amount'], 3); ?></td>
                                             <td>
                                                 <a href="valuations.php?action=edit&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-primary">Edit</a>
-                                                <a href="valuations.php?action=delete&id=<?php echo $val['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this valuation?');">Delete</a>
+                                                <form method="POST" action="valuations.php" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this valuation?');">
+                                                    <input type="hidden" name="action" value="delete">
+                                                    <input type="hidden" name="id" value="<?php echo $val['id']; ?>">
+                                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                                </form>
                                                 <a href="valuation_report.php?id=<?php echo $val['id']; ?>" class="btn btn-sm btn-info ">View Report</a>
                                             </td>
                                         </tr>
@@ -403,17 +449,6 @@ include 'includes/sidebar.php';
                         </form>
                     </div>
                 </div>
-            <?php elseif ($action == 'delete' && $id > 0): ?>
-                <?php
-                $stmt = $pdo->prepare("DELETE FROM valuations WHERE id = ?");
-                if ($stmt->execute([$id])) {
-                    $_SESSION['success'] = 'Valuation deleted successfully.';
-                } else {
-                    $_SESSION['error'] = 'Failed to delete valuation.';
-                }
-                header('Location: valuations.php');
-                exit;
-                ?>
             <?php endif; ?>
         </div>
     </section>
