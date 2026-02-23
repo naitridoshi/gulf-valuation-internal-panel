@@ -113,10 +113,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     //     $stmt->execute([$requestor_name_2]);
     // }
 
-    // Insert new bank if not exists
-    $stmt = $pdo->prepare("INSERT IGNORE INTO banks (name) VALUES (?)");
-    $stmt->execute([$bank_name]);
-
     // Insert new place if not exists
     $stmt = $pdo->prepare("INSERT IGNORE INTO places (name) VALUES (?)");
     $stmt->execute([$place_of_asset]);
