@@ -1,5 +1,21 @@
 <?php
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
 ob_start();
+
+// Catch any fatal PHP error and return JSON instead of HTML
+register_shutdown_function(function () {
+    $error = error_get_last();
+    if ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        http_response_code(500);
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'errors' => ['A server error occurred: ' . $error['message']]]);
+    }
+});
+
 include 'includes/config.php';
 
 if (!isset($_SESSION['user_id'])) {
@@ -109,23 +125,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $final_car_company = $car_company_select === 'new' ? $car_company : $car_company_select;
 
     // Insert new requestor if not exists
-    $stmt = $pdo->prepare("INSERT IGNORE INTO requestors (name) VALUES (?)");
-    $stmt->execute([$requestor_name]);
-    // if ($requestor_name_2) {
-    //     $stmt->execute([$requestor_name_2]);
-    // }
+    try {
+        $stmt = $pdo->prepare("INSERT IGNORE INTO requestors (name) VALUES (?)");
+        $stmt->execute([$requestor_name]);
+        // if ($requestor_name_2) {
+        //     $stmt->execute([$requestor_name_2]);
+        // }
 
-    // Insert new place if not exists
-    $stmt = $pdo->prepare("INSERT IGNORE INTO places (name) VALUES (?)");
-    $stmt->execute([$place_of_asset]);
+        // Insert new place if not exists
+        $stmt = $pdo->prepare("INSERT IGNORE INTO places (name) VALUES (?)");
+        $stmt->execute([$place_of_asset]);
 
-    // Insert new car company and model if not exists
-    $stmt = $pdo->prepare("INSERT IGNORE INTO car_models (car_company, car_model) VALUES (?, ?)");
-    $stmt->execute([$final_car_company, $car_model]);
+        // Insert new car company and model if not exists
+        $stmt = $pdo->prepare("INSERT IGNORE INTO car_models (car_company, car_model) VALUES (?, ?)");
+        $stmt->execute([$final_car_company, $car_model]);
 
-    // Insert new vehicle type if not exists
-    $stmt = $pdo->prepare("INSERT IGNORE INTO vehicle_types (type) VALUES (?)");
-    $stmt->execute([$vehicle_type]);
+        // Insert new vehicle type if not exists
+        $stmt = $pdo->prepare("INSERT IGNORE INTO vehicle_types (type) VALUES (?)");
+        $stmt->execute([$vehicle_type]);
+    } catch (PDOException $e) {
+        error_log("Lookup INSERT IGNORE failed: " . $e->getMessage());
+        // Non-fatal: continue even if a lookup insert fails
+    }
 
     // Insert or update valuation
     if ($action == 'add') {
@@ -145,6 +166,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 body_paint, tyres, valuation_amount, forced_sale_valuation_amount, invoice_amount, invoice_vat, invoice_total
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
+        $success = false;
         try {
             $success = $stmt->execute([
                 $ref_number, $valuation_date, $requestor_name, $requestor_contact_2 ?: null,
@@ -186,7 +208,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 exit;
             }
         }
-    } else if ($action == 'edit' && $id > 0) {
+    } elseif ($action == 'edit' && $id > 0) {
         $stmt = $pdo->prepare("
             UPDATE valuations SET
                 valuation_date = ?, requestor_name = ?, requestor_contact_2 = ?,
@@ -197,6 +219,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 invoice_amount = ?, invoice_vat = ?, invoice_total = ?
             WHERE id = ?
         ");
+        $success = false;
         try {
             $success = $stmt->execute([
                 $valuation_date, $requestor_name, $requestor_contact_2 ?: null,
@@ -233,6 +256,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 header('Location: valuations.php?action=edit&id=' . $id);
                 exit;
             }
+        }
+    } else {
+        // action/id mismatch - should not happen normally
+        if ($is_ajax) {
+            $respond_json(400, ['success' => false, 'errors' => ['Invalid action or missing ID.']]);
+        } else {
+            header('Location: valuations.php');
+            exit;
         }
     }
 } else {

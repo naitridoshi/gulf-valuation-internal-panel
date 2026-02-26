@@ -270,7 +270,7 @@ include 'includes/sidebar.php';
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="buyer" class="form-label">Name of the Applicant (Buyer) <span class="text-danger">*</span></label>
-                                    <input type="text" id="buyer_display" class="form-control" value="<?php echo $action == 'edit' ? htmlspecialchars($valuation['requestor_name']) : ''; ?>" required disabled>
+                                    <input type="text" id="buyer_display" class="form-control" value="<?php echo $action == 'edit' ? htmlspecialchars($valuation['requestor_name']) : ''; ?>" disabled>
                                     <input type="hidden" name="buyer" id="buyer" value="<?php echo $action == 'edit' ? htmlspecialchars($valuation['requestor_name']) : ''; ?>">
                                 </div>
                                 <div class="col-md-6 mb-3">
@@ -466,6 +466,8 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         syncBuyer();
         requestorName.addEventListener('input', syncBuyer);
+        requestorName.addEventListener('change', syncBuyer);
+        requestorName.addEventListener('blur', syncBuyer);
     }
 
     var invoiceAmount = document.getElementById('invoice_amount');
