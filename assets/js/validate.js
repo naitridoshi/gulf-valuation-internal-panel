@@ -45,59 +45,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Form submission validation
   form.addEventListener("submit", function (e) {
-    const errors = [];
+    let hasError = false;
     inputs.forEach((input) => {
       if (!validateField(input)) {
-        errors.push(getFieldLabel(input) + " is required.");
+        hasError = true;
       }
     });
 
-    if (errors.length) {
+    if (hasError) {
       e.preventDefault();
-      renderErrors(errors);
-      return;
+      alert("Please fill all required fields correctly.");
     }
-
-    e.preventDefault();
-    renderErrors([]);
-
-    const submitButton = form.querySelector('button[type="submit"]');
-    if (submitButton) {
-      submitButton.disabled = true;
-      submitButton.textContent = "Saving...";
-    }
-
-    const formData = new FormData(form);
-    formData.append("ajax", "1");
-    fetch(form.action, {
-      method: "POST",
-      body: formData,
-      headers: {
-        "X-Requested-With": "XMLHttpRequest",
-        Accept: "application/json",
-      },
-    })
-      .then(async (response) => {
-        const data = await response.json().catch(() => null);
-        if (response.ok && data && data.success) {
-          window.location.href = data.redirect || "valuations.php";
-          return;
-        }
-        const serverErrors =
-          data && Array.isArray(data.errors) && data.errors.length
-            ? data.errors
-            : ["Unable to save. Please check required fields."];
-        renderErrors(serverErrors);
-      })
-      .catch(() => {
-        renderErrors(["Unable to save. Please try again."]);
-      })
-      .finally(() => {
-        if (submitButton) {
-          submitButton.disabled = false;
-          submitButton.textContent = "Save Valuation";
-        }
-      });
+    
   });
 
   // Validation function
@@ -121,27 +80,6 @@ document.addEventListener("DOMContentLoaded", function () {
     return isValid;
   }
 
-  function getFieldLabel(input) {
-    if (input.labels && input.labels.length) {
-      return input.labels[0].textContent.replace("*", "").trim();
-    }
-    return input.getAttribute("name") || "This field";
-  }
-
-  function renderErrors(errors) {
-    const errorBox = document.getElementById("formErrors");
-    if (!errorBox) return;
-    if (!errors.length) {
-      errorBox.classList.add("d-none");
-      errorBox.innerHTML = "";
-      return;
-    }
-    errorBox.classList.remove("d-none");
-    errorBox.innerHTML =
-      "<strong>Please fix the following:</strong><br>" +
-      errors.map((error) => "- " + error).join("<br>");
-    errorBox.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
 
   // Run initial validation for pre-filled fields (edit mode)
   validateAllFields();
