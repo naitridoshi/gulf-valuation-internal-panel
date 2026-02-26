@@ -1,4 +1,5 @@
 <?php
+ob_start();
 include 'includes/config.php';
 
 if (!isset($_SESSION['user_id'])) {
@@ -12,6 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         || (!empty($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false);
 
     $respond_json = function ($status, $payload) {
+        ob_end_clean(); // discard any stray output (notices, warnings) before JSON
         http_response_code($status);
         header('Content-Type: application/json');
         echo json_encode($payload);
@@ -29,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $buyer = trim($_POST['buyer']);
     $seller = trim($_POST['seller']);
     $place_of_asset = trim($_POST['place_of_asset']);
-    $car_company = trim($_POST['car_company']);
+    $car_company = trim($_POST['car_company'] ?? '');
     $car_company_select = trim($_POST['car_company_select']);
     $vehicle_type = trim($_POST['vehicle_type']);
     $car_model = trim($_POST['car_model']);
