@@ -112,6 +112,7 @@ $replacements = [
     '{{forced_value_words}}' => htmlspecialchars(numberToWords($valuation['forced_sale_valuation_amount'])),
     '{{valuation_id}}' => htmlspecialchars($valuation['id']),
     '{{valuation_statement_html}}' => $valuation_statement_html,
+    '{{report_disclaimer}}' => $report_disclaimer,
 ];
 
 // Replace placeholders

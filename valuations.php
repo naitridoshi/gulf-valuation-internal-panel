@@ -58,6 +58,7 @@ $car_companies = $pdo->query("SELECT DISTINCT car_company FROM car_models ORDER 
 $car_models = $pdo->query("SELECT DISTINCT car_model FROM car_models ORDER BY car_model")->fetchAll(PDO::FETCH_COLUMN);
 $places = $pdo->query("SELECT name FROM places ORDER BY name")->fetchAll(PDO::FETCH_COLUMN);
 $vehicle_types = $pdo->query("SELECT type FROM vehicle_types ORDER BY type")->fetchAll(PDO::FETCH_COLUMN);
+$past_buyers = $pdo->query("SELECT DISTINCT buyer FROM valuations WHERE buyer IS NOT NULL AND buyer != '' ORDER BY buyer")->fetchAll(PDO::FETCH_COLUMN);
 
 // Generate REF Number for add action
 $year = date('y');
@@ -109,35 +110,65 @@ include 'includes/sidebar.php';
                 // Pagination settings
                 $records_per_page = 10;
                 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+                $search = isset($_GET['search']) ? trim($_GET['search']) : '';
                 $offset = ($page - 1) * $records_per_page;
 
+                // Build search condition
+                $search_condition = '';
+                $search_params = [];
+                if ($search !== '') {
+                    $search_condition = "WHERE (ref_number LIKE ? OR buyer LIKE ?)";
+                    $search_params = ["%$search%", "%$search%"];
+                }
+
                 // Get total records
-                $stmt = $pdo->query("SELECT COUNT(*) as total FROM valuations");
-                $total_records = $stmt->fetch()['total'];
+                $count_stmt = $pdo->prepare("SELECT COUNT(*) as total FROM valuations $search_condition");
+                $count_stmt->execute($search_params);
+                $total_records = $count_stmt->fetch()['total'];
                 $total_pages = ceil($total_records / $records_per_page);
 
-                // Fetch valuations for the current page (order by created date, then numeric suffix of ref_number)
-                $stmt = $pdo->prepare(
-                    "SELECT id, ref_number, valuation_date, valuation_amount
+                // Fetch valuations for the current page
+                $list_sql = "SELECT id, ref_number, buyer, valuation_date, valuation_amount
                      FROM valuations
+                     $search_condition
                      ORDER BY valuation_date DESC,
                               CAST(SUBSTRING_INDEX(ref_number, '/', -1) AS UNSIGNED) DESC
-                     LIMIT :limit OFFSET :offset"
-                );
-                $stmt->bindValue(':limit', (int)$records_per_page, PDO::PARAM_INT);
-                $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+                     LIMIT ? OFFSET ?";
+                $stmt = $pdo->prepare($list_sql);
+                $param_offset = 1;
+                foreach ($search_params as $val) {
+                    $stmt->bindValue($param_offset++, $val, PDO::PARAM_STR);
+                }
+                $stmt->bindValue($param_offset++, (int)$records_per_page, PDO::PARAM_INT);
+                $stmt->bindValue($param_offset,   (int)$offset,            PDO::PARAM_INT);
                 $stmt->execute();
                 $valuations = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 ?>
                 <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Valuations List</h3>
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="card-title mb-0">Valuations List</h3>
                     </div>
                     <div class="card-body">
+                        <!-- Search bar -->
+                        <form method="GET" action="valuations.php" class="mb-3">
+                            <div class="input-group">
+                                <input type="text" name="search" class="form-control"
+                                       placeholder="Search by REF number or Buyer name…"
+                                       value="<?php echo htmlspecialchars($search); ?>"
+                                       autocomplete="off">
+                                <div class="input-group-append">
+                                    <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Search</button>
+                                    <?php if ($search): ?>
+                                        <a href="valuations.php" class="btn btn-secondary">Clear</a>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </form>
                         <table class="table table-bordered table-hover">
                             <thead>
                                 <tr>
                                     <th>REF Number</th>
+                                    <th>Buyer</th>
                                     <th>Date</th>
                                     <th>Amount</th>
                                     <th>Actions</th>
@@ -146,12 +177,13 @@ include 'includes/sidebar.php';
                             <tbody>
                                 <?php if (empty($valuations)): ?>
                                     <tr>
-                                        <td colspan="4" class="text-center">No valuations found.</td>
+                                        <td colspan="5" class="text-center"><?php echo $search ? 'No valuations match your search.' : 'No valuations found.'; ?></td>
                                     </tr>
                                 <?php else: ?>
                                     <?php foreach ($valuations as $val): ?>
                                         <tr>
                                             <td><?php echo htmlspecialchars($val['ref_number']); ?></td>
+                                            <td><?php echo htmlspecialchars($val['buyer'] ?? ''); ?></td>
                                             <td><?php echo date('d/m/Y', strtotime($val['valuation_date'])); ?></td>
                                             <td>R.O. <?php echo number_format($val['valuation_amount'], 3); ?></td>
                                             <td>
@@ -171,19 +203,23 @@ include 'includes/sidebar.php';
                         <!-- Pagination -->
                         <nav aria-label="Page navigation">
                             <ul class="pagination justify-content-center mt-3">
+                                <?php
+                                $page_base = 'valuations.php?page=';
+                                $search_suffix = $search !== '' ? '&search=' . urlencode($search) : '';
+                                ?>
                                 <?php if ($page > 1): ?>
                                     <li class="page-item">
-                                        <a class="page-link" href="valuations.php?page=<?php echo $page - 1; ?>">Previous</a>
+                                        <a class="page-link" href="<?php echo $page_base . ($page - 1) . $search_suffix; ?>">Previous</a>
                                     </li>
                                 <?php endif; ?>
                                 <?php for ($i = 1; $i <= $total_pages; $i++): ?>
                                     <li class="page-item <?php echo $i == $page ? 'active' : ''; ?>">
-                                        <a class="page-link" href="valuations.php?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                                        <a class="page-link" href="<?php echo $page_base . $i . $search_suffix; ?>"><?php echo $i; ?></a>
                                     </li>
                                 <?php endfor; ?>
                                 <?php if ($page < $total_pages): ?>
                                     <li class="page-item">
-                                        <a class="page-link" href="valuations.php?page=<?php echo $page + 1; ?>">Next</a>
+                                        <a class="page-link" href="<?php echo $page_base . ($page + 1) . $search_suffix; ?>">Next</a>
                                     </li>
                                 <?php endif; ?>
                             </ul>
@@ -233,12 +269,10 @@ include 'includes/sidebar.php';
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="requestor_name" class="form-label">WE THE UNDERSIGNED AT THE REQUEST OF <span class="text-danger">*</span></label>
-                                    <input type="text" name="requestor_name" id="requestor_name" class="form-control" list="requestor_list" placeholder="Enter applicant name" value="<?php echo $action == 'edit' ? htmlspecialchars($valuation['requestor_name']) : ''; ?>" required>
-                                    <datalist id="requestor_list">
-                                        <?php foreach ($requestors as $requestor): ?>
-                                            <option value="<?php echo htmlspecialchars($requestor); ?>">
-                                        <?php endforeach; ?>
-                                    </datalist>
+                                    <div class="autocomplete-wrap" style="position:relative;">
+                                        <input type="text" name="requestor_name" id="requestor_name" class="form-control" placeholder="Enter applicant name" value="<?php echo $action == 'edit' ? htmlspecialchars($valuation['requestor_name']) : ''; ?>" required autocomplete="off">
+                                        <div id="requestor_dropdown" class="ac-dropdown" style="display:none;"></div>
+                                    </div>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="requestor_contact_2" class="form-label">Requestor Contact</label>
@@ -270,8 +304,11 @@ include 'includes/sidebar.php';
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="buyer" class="form-label">Name of the Applicant (Buyer) <span class="text-danger">*</span></label>
-                                    <input type="text" id="buyer_display" class="form-control" value="<?php echo $action == 'edit' ? htmlspecialchars($valuation['requestor_name']) : ''; ?>" disabled>
-                                    <input type="hidden" name="buyer" id="buyer" value="<?php echo $action == 'edit' ? htmlspecialchars($valuation['requestor_name']) : ''; ?>">
+                                    <div class="autocomplete-wrap" style="position:relative;">
+                                        <input type="text" name="buyer" id="buyer" class="form-control" placeholder="Search or enter buyer name" value="<?php echo $action == 'edit' ? htmlspecialchars($valuation['buyer'] ?? $valuation['requestor_name']) : ''; ?>" required autocomplete="off">
+                                        <div id="buyer_dropdown" class="ac-dropdown" style="display:none; position:absolute; z-index:1000; background:#fff; border:1px solid #ccc; width:100%; max-height:200px; overflow-y:auto;"></div>
+                                    </div>
+                                    <small class="form-text text-muted">Auto-filled from applicant name — override if different.</small>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="seller" class="form-label">Seller</label>
@@ -453,84 +490,315 @@ include 'includes/sidebar.php';
         </div>
     </section>
 </div>
-<script src="assets/js/validate.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    var requestorName = document.getElementById('requestor_name');
-    var buyer = document.getElementById('buyer');
-    var buyerDisplay = document.getElementById('buyer_display');
-    if (requestorName && buyer && buyerDisplay) {
-        var syncBuyer = function() {
-            buyer.value = requestorName.value;
-            buyerDisplay.value = requestorName.value;
-        };
-        syncBuyer();
-        requestorName.addEventListener('input', syncBuyer);
-        requestorName.addEventListener('change', syncBuyer);
-        requestorName.addEventListener('blur', syncBuyer);
-    }
+/* ── Autocomplete dropdown styles ───────────────────────────────────── */
+(function(){
+    var s = document.createElement('style');
+    s.textContent = [
+        '.ac-dropdown { position:absolute; z-index:9999; background:#fff;',
+        '  border:1px solid #aaa; border-top:none; width:100%;',
+        '  max-height:220px; overflow-y:auto; border-radius:0 0 4px 4px;',
+        '  box-shadow:0 4px 10px rgba(0,0,0,.15); }',
+        '.ac-item { padding:8px 12px; cursor:pointer; font-size:14px; }',
+        '.ac-item:hover, .ac-item.ac-active { background:#e9f0ff; color:#003399; }'
+    ].join('\n');
+    document.head.appendChild(s);
+})();
 
-    var invoiceAmount = document.getElementById('invoice_amount');
-    var invoiceVatDisplay = document.getElementById('invoice_vat_display');
-    var invoiceVat = document.getElementById('invoice_vat');
-    var invoiceTotalDisplay = document.getElementById('invoice_total_display');
-    var invoiceTotal = document.getElementById('invoice_total');
-    if (invoiceAmount && invoiceVatDisplay && invoiceVat && invoiceTotalDisplay && invoiceTotal) {
-        var formatAmount = function(value) {
-            return value.toFixed(3);
-        };
-        var setInvoiceTotals = function(amount) {
-            var vat = amount * 0.05;
-            var total = amount + vat;
-            var vatValue = formatAmount(vat);
-            var totalValue = formatAmount(total);
-            invoiceVatDisplay.value = vatValue;
-            invoiceVat.value = vatValue;
-            invoiceTotalDisplay.value = totalValue;
-            invoiceTotal.value = totalValue;
-        };
-        var calculateInvoice = function() {
-            var amount = parseFloat(invoiceAmount.value);
-            if (isNaN(amount)) {
-                invoiceVatDisplay.value = '';
-                invoiceVat.value = '';
-                invoiceTotalDisplay.value = '';
-                invoiceTotal.value = '';
+document.addEventListener('DOMContentLoaded', function() {
+
+    // ── Data arrays from PHP ───────────────────────────────────────────────
+    var REQUESTORS  = <?php echo json_encode(array_values($requestors)); ?>;
+    var PAST_BUYERS = <?php echo json_encode(array_values($past_buyers)); ?>;
+
+    // ── Generic autocomplete builder ───────────────────────────────────────
+    function makeAutocomplete(inputEl, dropEl, dataArr, onSelect) {
+        var activeIdx = -1;
+
+        function show(items) {
+            dropEl.innerHTML = '';
+            activeIdx = -1;
+            if (!items.length) { dropEl.style.display = 'none'; return; }
+            items.forEach(function(item, i) {
+                var d = document.createElement('div');
+                d.className = 'ac-item';
+                d.textContent = item;
+                d.addEventListener('mousedown', function(e) {
+                    e.preventDefault(); // keep focus on input
+                    inputEl.value = item;
+                    dropEl.style.display = 'none';
+                    if (onSelect) onSelect(item);
+                    inputEl.dispatchEvent(new Event('change'));
+                    inputEl.classList.remove('is-invalid');
+                    inputEl.classList.add('is-valid');
+                });
+                dropEl.appendChild(d);
+            });
+            dropEl.style.display = 'block';
+        }
+
+        inputEl.addEventListener('input', function() {
+            var q = this.value.trim().toLowerCase();
+            if (!q) {
+                // show all when field is focused and empty
+                show(dataArr.slice(0, 20));
                 return;
             }
-            setInvoiceTotals(amount);
-        };
-        if (!invoiceVatDisplay.value && !invoiceTotalDisplay.value && invoiceAmount.value) {
-            calculateInvoice();
-        }
-        invoiceAmount.addEventListener('input', calculateInvoice);
+            var matches = dataArr.filter(function(v) {
+                return v.toLowerCase().indexOf(q) !== -1;
+            });
+            show(matches.slice(0, 20));
+        });
+
+        inputEl.addEventListener('focus', function() {
+            var q = this.value.trim().toLowerCase();
+            var items = q
+                ? dataArr.filter(function(v){ return v.toLowerCase().indexOf(q) !== -1; }).slice(0,20)
+                : dataArr.slice(0, 20);
+            show(items);
+        });
+
+        // Keyboard navigation
+        inputEl.addEventListener('keydown', function(e) {
+            var items = dropEl.querySelectorAll('.ac-item');
+            if (!items.length) return;
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                activeIdx = Math.min(activeIdx + 1, items.length - 1);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                activeIdx = Math.max(activeIdx - 1, 0);
+            } else if (e.key === 'Enter' && activeIdx >= 0) {
+                e.preventDefault();
+                items[activeIdx].dispatchEvent(new MouseEvent('mousedown'));
+                return;
+            } else if (e.key === 'Escape') {
+                dropEl.style.display = 'none';
+                activeIdx = -1;
+                return;
+            }
+            items.forEach(function(el, i) {
+                el.classList.toggle('ac-active', i === activeIdx);
+                if (i === activeIdx) el.scrollIntoView({ block: 'nearest' });
+            });
+        });
+
+        // Close on outside click
+        document.addEventListener('click', function(e) {
+            if (!inputEl.contains(e.target) && !dropEl.contains(e.target)) {
+                dropEl.style.display = 'none';
+                activeIdx = -1;
+            }
+        });
     }
 
-    var select = document.getElementById('car_company_select');
-    select.addEventListener('change', function() {
-        if (this.value === 'new') {
-            var newMake = prompt('Enter new vehicle make:');
-            if (newMake && newMake.trim() !== '') {
-                // Check if already exists
-                var exists = false;
-                for (var i = 0; i < select.options.length; i++) {
-                    if (select.options[i].value.toLowerCase() === newMake.trim().toLowerCase()) {
-                        exists = true;
-                        break;
-                    }
-                }
-                if (!exists) {
-                    var option = document.createElement('option');
-                    option.value = newMake.trim();
-                    option.text = newMake.trim();
-                    select.add(option, select.options.length - 1); // before 'Add New Make'
-                }
-                select.value = newMake.trim();
-            } else {
-                select.value = '';
+    // ── Requestor autocomplete ─────────────────────────────────────────────
+    var requestorEl  = document.getElementById('requestor_name');
+    var requestorDrop= document.getElementById('requestor_dropdown');
+    var buyerEl      = document.getElementById('buyer');
+    var buyerDrop    = document.getElementById('buyer_dropdown');
+
+    if (requestorEl && requestorDrop) {
+        makeAutocomplete(requestorEl, requestorDrop, REQUESTORS);
+    }
+
+    // ── Buyer autocomplete + auto-fill from requestor ──────────────────────
+    if (buyerEl && buyerDrop) {
+        makeAutocomplete(buyerEl, buyerDrop, PAST_BUYERS);
+    }
+
+    if (requestorEl && buyerEl) {
+        // In add mode, buyer starts empty — always sync until user picks from buyer dropdown
+        var buyerManual = buyerEl.value !== '' && <?php echo $action === 'edit' ? 'true' : 'false'; ?>;
+
+        function syncBuyer() {
+            if (!buyerManual) {
+                buyerEl.value = requestorEl.value;
+                buyerEl.classList.remove('is-invalid');
+                if (buyerEl.value.trim()) buyerEl.classList.add('is-valid');
             }
         }
+        syncBuyer();
+        requestorEl.addEventListener('input',  syncBuyer);
+        requestorEl.addEventListener('change', syncBuyer);
+
+        // If user types directly in buyer field (different from requestor), stop syncing
+        buyerEl.addEventListener('input', function() {
+            if (buyerEl.value !== requestorEl.value) {
+                buyerManual = true;
+            } else {
+                buyerManual = false;
+            }
+        });
+    }
+
+    // ── Invoice amount calculator ──────────────────────────────────────────
+    var invoiceAmount    = document.getElementById('invoice_amount');
+    var invoiceVatDisp   = document.getElementById('invoice_vat_display');
+    var invoiceVat       = document.getElementById('invoice_vat');
+    var invoiceTotalDisp = document.getElementById('invoice_total_display');
+    var invoiceTotal     = document.getElementById('invoice_total');
+    if (invoiceAmount && invoiceVatDisp && invoiceVat && invoiceTotalDisp && invoiceTotal) {
+        var calcInvoice = function() {
+            var amt = parseFloat(invoiceAmount.value);
+            if (isNaN(amt)) {
+                invoiceVatDisp.value = invoiceVat.value = invoiceTotalDisp.value = invoiceTotal.value = '';
+                return;
+            }
+            var vat   = (amt * 0.05).toFixed(3);
+            var total = (amt + parseFloat(vat)).toFixed(3);
+            invoiceVatDisp.value = invoiceVat.value = vat;
+            invoiceTotalDisp.value = invoiceTotal.value = total;
+        };
+        if (!invoiceVatDisp.value && invoiceAmount.value) calcInvoice();
+        invoiceAmount.addEventListener('input', calcInvoice);
+    }
+
+    // ── Live valuation amount in words ────────────────────────────────────
+    var valuationAmount = document.getElementById('valuation_amount');
+    var amountInWords   = document.getElementById('amount_in_words');
+    if (valuationAmount && amountInWords) {
+        valuationAmount.addEventListener('input', function() {
+            var v = parseFloat(this.value);
+            amountInWords.textContent = v > 0 ? '(Rials Omani ' + numberToWords(v) + ')' : '';
+        });
+    }
+
+    // ── Add-new car make prompt ────────────────────────────────────────────
+    var carSelect = document.getElementById('car_company_select');
+    if (carSelect) {
+        carSelect.addEventListener('change', function() {
+            if (this.value === 'new') {
+                var newMake = prompt('Enter new vehicle make:');
+                if (newMake && newMake.trim()) {
+                    var exists = Array.from(carSelect.options).some(function(o) {
+                        return o.value.toLowerCase() === newMake.trim().toLowerCase();
+                    });
+                    if (!exists) {
+                        var opt = document.createElement('option');
+                        opt.value = opt.text = newMake.trim();
+                        carSelect.add(opt, carSelect.options.length - 1);
+                    }
+                    carSelect.value = newMake.trim();
+                } else {
+                    carSelect.value = '';
+                }
+            }
+        });
+    }
+
+    // ── AJAX form submission ───────────────────────────────────────────────
+    var form       = document.getElementById('valuationForm');
+    var formErrors = document.getElementById('formErrors');
+    if (!form) return;
+
+    var requiredFields = form.querySelectorAll('input[required], select[required], textarea[required]');
+
+    function validateField(field) {
+        var valid = field.type === 'number'
+            ? (field.value !== '' && parseFloat(field.value) > 0)
+            : field.tagName === 'SELECT'
+                ? field.value !== ''
+                : field.value.trim() !== '';
+        field.classList.toggle('is-invalid', !valid);
+        field.classList.toggle('is-valid',   valid);
+        return valid;
+    }
+
+    requiredFields.forEach(function(f) {
+        ['input','change','blur'].forEach(function(ev) {
+            f.addEventListener(ev, function() { validateField(f); });
+        });
+        validateField(f); // run on load for edit mode
     });
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var allValid = true;
+        requiredFields.forEach(function(f) { if (!validateField(f)) allValid = false; });
+        if (!allValid) {
+            formErrors.innerHTML = '<strong>Please fill in all required fields before saving.</strong>';
+            formErrors.classList.remove('d-none');
+            formErrors.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            return;
+        }
+        var btn = form.querySelector('button[type="submit"]');
+        var origText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'Saving…';
+        formErrors.classList.add('d-none');
+
+        var saveUrl = <?php
+            $base = str_replace('\\', '/', dirname($_SERVER['PHP_SELF']));
+            $base = rtrim($base, '/');
+            echo json_encode($base . '/save_valuation.php');
+        ?>;
+        fetch(saveUrl, {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: new FormData(form)
+        })
+        .then(function(r) {
+            // Capture raw text first so we can diagnose non-JSON responses
+            return r.text().then(function(text) {
+                try {
+                    return JSON.parse(text);
+                } catch(e) {
+                    // Server returned non-JSON (PHP error, redirect HTML, etc.)
+                    console.error('Server response was not JSON:', text);
+                    throw new Error('Server returned invalid response: ' + text.substring(0, 300));
+                }
+            });
+        })
+        .then(function(data) {
+            if (data.success) {
+                window.location.href = data.redirect || 'valuations.php';
+            } else {
+                var msgs = Array.isArray(data.errors) ? data.errors : ['An unknown error occurred.'];
+                formErrors.innerHTML = msgs.map(function(m) { return '<div>' + m + '</div>'; }).join('');
+                formErrors.classList.remove('d-none');
+                formErrors.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                btn.disabled = false;
+                btn.textContent = origText;
+            }
+        })
+        .catch(function(err) {
+            var msg = err && err.message ? err.message : 'Unknown error';
+            formErrors.innerHTML = '<div><strong>Save failed:</strong> ' + msg + '</div>';
+            formErrors.classList.remove('d-none');
+            formErrors.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            btn.disabled = false;
+            btn.textContent = origText;
+        });
+    });
+
+    // ── Number to words ───────────────────────────────────────────────────
+    function numberToWords(number) {
+        var ones = ['Zero','One','Two','Three','Four','Five','Six','Seven','Eight','Nine',
+                    'Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen',
+                    'Seventeen','Eighteen','Nineteen'];
+        var tens = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+        var thousands = ['','Thousand','Million','Billion'];
+        if (number == 0) return 'Zero';
+        number = parseFloat(number);
+        var whole = Math.floor(number);
+        var decimal = Math.round((number - whole) * 1000);
+        var words = [], wholeWords = '';
+        if (whole > 0) {
+            var chunks = String(whole).padStart(Math.ceil(String(whole).length/3)*3,'0').match(/.{1,3}/g).reverse();
+            chunks.forEach(function(chunk, i) {
+                chunk = parseInt(chunk);
+                if (!chunk) return;
+                var cw = [];
+                if (chunk >= 100) { cw.push(ones[Math.floor(chunk/100)]+' Hundred'); chunk %= 100; }
+                if (chunk >= 20)  { cw.push(tens[Math.floor(chunk/10)]); chunk %= 10; }
+                if (chunk > 0)    { cw.push(ones[chunk]); }
+                if (cw.length) words.push(cw.join(' ') + (thousands[i] ? ' '+thousands[i] : ''));
+            });
+            wholeWords = words.reverse().join(' ');
+        } else { wholeWords = 'Zero'; }
+        return wholeWords + (decimal > 0 ? ' and '+numberToWords(decimal)+' Baizas' : '') + ' Only';
+    }
 });
 </script>
 <?php include 'includes/footer.php'; ?>

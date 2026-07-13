@@ -151,9 +151,10 @@ include 'includes/sidebar.php';
                             <td><?php echo htmlspecialchars($valuation['tyres']); ?></td>
                         </tr>
                     </table>
-                    <p>Based on our observation, age, maintenance and performance of the vehicle, we are of the opinion that the present market value of the above vehicle with the existing specification on “as is where is conditions” is approximately<br>
+                    <p><?php echo nl2br(htmlspecialchars($settings['valuation_statement'] ?? 'Based on our observation, age, maintenance and performance of the vehicle, we are of the opinion that the present market value of the above vehicle with the existing specification on "as is where is conditions" is approximately')); ?><br>
                     <strong>R.O. <?php echo number_format($valuation['valuation_amount'], 3); ?> (Rials Omani <?php echo numberToWords($valuation['valuation_amount']); ?>)</strong></p>
                     <p><strong>Constrained Realization Circumstances (FMV): R.O. <?php echo number_format($valuation['forced_sale_valuation_amount'], 3); ?> (Rials Omani <?php echo numberToWords($valuation['forced_sale_valuation_amount']); ?>)</strong></p>
+                    <p><?php echo nl2br(htmlspecialchars($settings['report_disclaimer'] ?? 'This report is true to the best of our knowledge and is issued without prejudice subject to the valuation as per condition of the vehicle at the date, place and time of our inspection.')); ?></p>
                     <p><?php echo nl2br(htmlspecialchars($settings['valuation_footer'] ?? '')); ?></p>
                     <p><strong><?php echo htmlspecialchars(substr($valuation['ref_number'], strrpos($valuation['ref_number'], '/') + 1)); ?></strong></p>
                     <h4>TAX INVOICE</h4>
