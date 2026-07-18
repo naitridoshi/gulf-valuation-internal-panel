@@ -59,4 +59,37 @@ function numberToWords($number, $isDecimal = false) {
 
     return $wholeWords . $decimalWords . ($isDecimal ? '' : ' Only');
 }
+
+function get_next_ref_seq($pdo, $settings, $year = null) {
+    if ($year === null) {
+        $year = date('y');
+    }
+    $prefix = $settings['ref_prefix'] ?? 'GAS/VAL/';
+    
+    // Fetch all existing reference numbers for this prefix and year
+    $like_pattern = $prefix . $year . '/%';
+    $stmt = $pdo->prepare("SELECT ref_number FROM valuations WHERE ref_number LIKE ?");
+    $stmt->execute([$like_pattern]);
+    $existing_refs = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    
+    $existing_seqs = [];
+    foreach ($existing_refs as $ref) {
+        $parts = explode('/', $ref);
+        $seq_part = end($parts);
+        if (ctype_digit($seq_part)) {
+            $existing_seqs[] = (int)$seq_part;
+        }
+    }
+    
+    // Get starting sequence from settings (default to 1)
+    $start_seq = isset($settings['ref_number']) ? (int)$settings['ref_number'] : 1;
+    
+    // Find the first unused sequence number starting from $start_seq
+    $next_seq = $start_seq;
+    while (in_array($next_seq, $existing_seqs)) {
+        $next_seq++;
+    }
+    
+    return $next_seq;
+}
 ?>

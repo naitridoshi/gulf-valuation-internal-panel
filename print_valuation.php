@@ -1,7 +1,7 @@
 <?php
 
 include 'includes/config.php';
-include 'includes/functions.php';
+include_once 'includes/functions.php';
 
 if (!isset($_GET['id'])) {
     die('No valuation ID provided.');
@@ -113,6 +113,8 @@ $replacements = [
     '{{valuation_id}}' => htmlspecialchars($valuation['id']),
     '{{valuation_statement_html}}' => $valuation_statement_html,
     '{{report_disclaimer}}' => $report_disclaimer,
+    '{{company_signature}}' => isset($settings['company_signature']) ? htmlspecialchars($settings['company_signature']) : 'For GULF ADJUSTERS, SURVEYORS & SERVICES LLC',
+    '{{valuation_footer}}' => isset($settings['valuation_footer']) ? htmlspecialchars($settings['valuation_footer']) : '',
 ];
 
 // Replace placeholders

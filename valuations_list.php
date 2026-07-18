@@ -123,17 +123,53 @@ include 'includes/sidebar.php';
                                 <?php
                                 $page_base = 'valuations_list.php?page=';
                                 $search_suffix = $search !== '' ? '&search=' . urlencode($search) : '';
+                                
+                                $range = 2;
+                                $start_page = $page - $range;
+                                $end_page = $page + $range;
+                                
+                                if ($start_page < 1) {
+                                    $end_page += 1 - $start_page;
+                                    $start_page = 1;
+                                }
+                                if ($end_page > $total_pages) {
+                                    $start_page -= $end_page - $total_pages;
+                                    $end_page = $total_pages;
+                                }
+                                if ($start_page < 1) {
+                                    $start_page = 1;
+                                }
                                 ?>
                                 <?php if ($page > 1): ?>
                                     <li class="page-item">
                                         <a class="page-link" href="<?php echo $page_base . ($page - 1) . $search_suffix; ?>">Previous</a>
                                     </li>
                                 <?php endif; ?>
-                                <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+
+                                <?php if ($start_page > 1): ?>
+                                    <li class="page-item">
+                                        <a class="page-link" href="<?php echo $page_base . '1' . $search_suffix; ?>">1</a>
+                                    </li>
+                                    <?php if ($start_page > 2): ?>
+                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+
+                                <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
                                     <li class="page-item <?php echo $i == $page ? 'active' : ''; ?>">
                                         <a class="page-link" href="<?php echo $page_base . $i . $search_suffix; ?>"><?php echo $i; ?></a>
                                     </li>
                                 <?php endfor; ?>
+
+                                <?php if ($end_page < $total_pages): ?>
+                                    <?php if ($end_page < $total_pages - 1): ?>
+                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                    <?php endif; ?>
+                                    <li class="page-item">
+                                        <a class="page-link" href="<?php echo $page_base . $total_pages . $search_suffix; ?>"><?php echo $total_pages; ?></a>
+                                    </li>
+                                <?php endif; ?>
+
                                 <?php if ($page < $total_pages): ?>
                                     <li class="page-item">
                                         <a class="page-link" href="<?php echo $page_base . ($page + 1) . $search_suffix; ?>">Next</a>

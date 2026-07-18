@@ -185,10 +185,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         if ($success) {
-            // Increment ref_number
-            $new_ref_number = (int)$settings['ref_number'] + 1;
-            $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?, updated_at = NOW()");
-            $stmt->execute(['ref_number', $new_ref_number, $new_ref_number]);
+            // Update settings.ref_number only if the saved sequence is >= current setting
+            $ref_parts = explode('/', $ref_number);
+            $seq_part = end($ref_parts);
+            $saved_seq = ctype_digit($seq_part) ? (int)$seq_part : 0;
+            $current_ref_number = isset($settings['ref_number']) ? (int)$settings['ref_number'] : 1;
+            if ($saved_seq >= $current_ref_number) {
+                $new_ref_number = $saved_seq + 1;
+                $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?, updated_at = NOW()");
+                $stmt->execute(['ref_number', $new_ref_number, $new_ref_number]);
+            }
 
             if ($is_ajax) {
                 $respond_json(200, ['success' => true, 'redirect' => 'valuations.php']);

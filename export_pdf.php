@@ -1,7 +1,7 @@
 <?php
 
 include 'includes/config.php';
-include 'includes/functions.php';
+include_once 'includes/functions.php';
 
 require_once 'vendor/dompdf/autoload.inc.php';
 

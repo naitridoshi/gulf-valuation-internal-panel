@@ -18,24 +18,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             if ($ref_number_to_delete) {
                 $ref_parts = explode('/', $ref_number_to_delete);
                 $seq_part = end($ref_parts);
-                $year_part = count($ref_parts) >= 2 ? $ref_parts[count($ref_parts) - 2] : '';
-                $current_year = date('y');
-
-                if (ctype_digit($seq_part) && $year_part === $current_year) {
+                if (ctype_digit($seq_part)) {
                     $seq_value = (int)$seq_part;
-                    if ($seq_value > 0) {
-                        $stmt = $pdo->prepare("SELECT COUNT(*) FROM valuations WHERE ref_number = ?");
-                        $stmt->execute([$ref_number_to_delete]);
-                        $ref_exists = (int)$stmt->fetchColumn() > 0;
-
-                        if (!$ref_exists) {
-                            $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?, updated_at = NOW()");
-                            $stmt->execute(['ref_number', $seq_value, $seq_value]);
-                        }
+                    $current_ref_number = isset($settings['ref_number']) ? (int)$settings['ref_number'] : 1;
+                    if ($seq_value > 0 && $seq_value < $current_ref_number) {
+                        $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?, updated_at = NOW()");
+                        $stmt->execute(['ref_number', $seq_value, $seq_value]);
                     }
                 }
             }
-
             $_SESSION['success'] = 'Valuation deleted successfully.';
         } else {
             $_SESSION['error'] = 'Failed to delete valuation.';
@@ -62,7 +53,7 @@ $past_buyers = $pdo->query("SELECT DISTINCT buyer FROM valuations WHERE buyer IS
 
 // Generate REF Number for add action
 $year = date('y');
-$ref_number_seq = $settings['ref_number'] ?? 1;
+$ref_number_seq = get_next_ref_seq($pdo, $settings);
 $ref_number = ($settings['ref_prefix'] ?? 'GAS/VAL/') . $year . '/' . sprintf("%04d", $ref_number_seq);
 
 // Generate years for manufacture
@@ -206,17 +197,53 @@ include 'includes/sidebar.php';
                                 <?php
                                 $page_base = 'valuations.php?page=';
                                 $search_suffix = $search !== '' ? '&search=' . urlencode($search) : '';
+                                
+                                $range = 2;
+                                $start_page = $page - $range;
+                                $end_page = $page + $range;
+                                
+                                if ($start_page < 1) {
+                                    $end_page += 1 - $start_page;
+                                    $start_page = 1;
+                                }
+                                if ($end_page > $total_pages) {
+                                    $start_page -= $end_page - $total_pages;
+                                    $end_page = $total_pages;
+                                }
+                                if ($start_page < 1) {
+                                    $start_page = 1;
+                                }
                                 ?>
                                 <?php if ($page > 1): ?>
                                     <li class="page-item">
                                         <a class="page-link" href="<?php echo $page_base . ($page - 1) . $search_suffix; ?>">Previous</a>
                                     </li>
                                 <?php endif; ?>
-                                <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+
+                                <?php if ($start_page > 1): ?>
+                                    <li class="page-item">
+                                        <a class="page-link" href="<?php echo $page_base . '1' . $search_suffix; ?>">1</a>
+                                    </li>
+                                    <?php if ($start_page > 2): ?>
+                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+
+                                <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
                                     <li class="page-item <?php echo $i == $page ? 'active' : ''; ?>">
                                         <a class="page-link" href="<?php echo $page_base . $i . $search_suffix; ?>"><?php echo $i; ?></a>
                                     </li>
                                 <?php endfor; ?>
+
+                                <?php if ($end_page < $total_pages): ?>
+                                    <?php if ($end_page < $total_pages - 1): ?>
+                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                    <?php endif; ?>
+                                    <li class="page-item">
+                                        <a class="page-link" href="<?php echo $page_base . $total_pages . $search_suffix; ?>"><?php echo $total_pages; ?></a>
+                                    </li>
+                                <?php endif; ?>
+
                                 <?php if ($page < $total_pages): ?>
                                     <li class="page-item">
                                         <a class="page-link" href="<?php echo $page_base . ($page + 1) . $search_suffix; ?>">Next</a>

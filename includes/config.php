@@ -11,4 +11,5 @@ $stmt = $pdo->query("SELECT setting_key, setting_value FROM settings");
 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $settings[$row['setting_key']] = $row['setting_value'];
 }
+include_once dirname(__FILE__) . '/functions.php';
 ?>

@@ -1,6 +1,6 @@
 <?php
 include 'includes/config.php';
-include 'includes/functions.php';
+include_once 'includes/functions.php';
 
 if (!isset($_SESSION['user_id'])) {
     header('Location: index.php');
@@ -155,7 +155,10 @@ include 'includes/sidebar.php';
                     <strong>R.O. <?php echo number_format($valuation['valuation_amount'], 3); ?> (Rials Omani <?php echo numberToWords($valuation['valuation_amount']); ?>)</strong></p>
                     <p><strong>Constrained Realization Circumstances (FMV): R.O. <?php echo number_format($valuation['forced_sale_valuation_amount'], 3); ?> (Rials Omani <?php echo numberToWords($valuation['forced_sale_valuation_amount']); ?>)</strong></p>
                     <p><?php echo nl2br(htmlspecialchars($settings['report_disclaimer'] ?? 'This report is true to the best of our knowledge and is issued without prejudice subject to the valuation as per condition of the vehicle at the date, place and time of our inspection.')); ?></p>
-                    <p><?php echo nl2br(htmlspecialchars($settings['valuation_footer'] ?? '')); ?></p>
+                    <div style="margin-top: 20px;">
+                        <strong><?php echo htmlspecialchars($settings['company_signature'] ?? 'For GULF ADJUSTERS, SURVEYORS & SERVICES LLC'); ?></strong>
+                        <p style="margin-top: 10px; font-weight: bold; white-space: pre-line;"><?php echo htmlspecialchars($settings['valuation_footer'] ?? ''); ?></p>
+                    </div>
                     <p><strong><?php echo htmlspecialchars(substr($valuation['ref_number'], strrpos($valuation['ref_number'], '/') + 1)); ?></strong></p>
                     <h4>TAX INVOICE</h4>
                     <table class="table">
